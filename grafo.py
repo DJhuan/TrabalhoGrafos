@@ -53,7 +53,15 @@ class Grafo:
             if tupla == (v2, pond):
                 self.arestas[v1].remove(tupla)
                 if not self.direcioando: self.arestas[v2].remove((v1, pond))
+    
+    def rem_vertice(self, v):
+        for aresta in self.arestas[v]:
+            self.arestas[v].remove(aresta)
+            if not self.direcioando:
+                self.arestas[aresta[0]].remove((v, aresta[1]))
             
+        self.arestas.pop(v)
+        self.vertices.remove(v)
 
     def __tuplas_paraDirecionado(self, vertice, arestas, filtro):
         listaAdj = []
