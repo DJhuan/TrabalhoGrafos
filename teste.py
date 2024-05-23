@@ -168,6 +168,9 @@ def EscreveArquivo(g, nomeArquivo):
                         arquivo.write(str(n+1))
                         arquivo.write(",")
                         arquivo.write(str(i+1))
+                        if g.valorado:
+                            arquivo.write(",")
+                            arquivo.write(str(linha[i]))
                         arquivo.write(")")
                 n = n+1
         else:
@@ -184,6 +187,9 @@ def EscreveArquivo(g, nomeArquivo):
                         arquivo.write(str(n+1))
                         arquivo.write(",")
                         arquivo.write(str(elemento+1))
+                        if g.valorado:
+                            arquivo.write(",")
+                            arquivo.write(str(linha[elemento]))
                         arquivo.write(")")
                 n = n+1
 
@@ -197,24 +203,35 @@ with open("./" + nomeArquivo, "r") as arquivo:
     linha = arquivo.read()
     qtVertices = 0
     contador = 0
-    if not valorado:
-        while linha[contador] != '{':
-            contador = contador+1
-        contador = contador+1
-        while linha[contador] != '}':
-            if linha[contador] != ',':
-                qtVertices = qtVertices+1
-            contador = contador+1
-        g = Grafo(qtVertices, direcionado, valorado)
-        valor = 1
-
     while linha[contador] != '{':
         contador = contador+1
+    contador = contador+1
     while linha[contador] != '}':
-        v1 = int(linha[contador+2])
-        v2 = int(linha[contador+4])
-        g.AdicionarArestas(v1,v2,valor)
-        contador = contador+6
+        if linha[contador] != ',':
+            qtVertices = qtVertices+1
+        contador = contador+1
+    g = Grafo(qtVertices, direcionado, valorado)
+        
+    if not valorado:
+        valor = 1
+        while linha[contador] != '{':
+            contador = contador+1
+        while linha[contador] != '}':
+            v1 = int(linha[contador+2])
+            v2 = int(linha[contador+4])
+            g.AdicionarArestas(v1,v2,valor)
+            contador = contador+6
+    else:
+        while linha[contador] != '{':
+            contador = contador+1
+        while linha[contador] != '}':
+            v1 = int(linha[contador+2])
+            v2 = int(linha[contador+4])
+            print(linha[contador+6])
+            valor = int(linha[contador+6])
+            g.AdicionarArestas(v1,v2,valor)
+            contador = contador+8
+
 print("Grafo em matriz: ")
 g.Imprime()
 
@@ -233,6 +250,7 @@ if n == "1":
 
 if n == "2":
     g.AdicionarVertices()
+    g.Imprime()
     EscreveArquivo(g,nomeArquivo)
 
 if n == "3":
