@@ -14,7 +14,7 @@ class GrafoLista:
         self.vertices = vertices
         self.direcioando = direcd
         self.ponderado = pondr
-        self.adjacencia = {}
+        self.lista = {}
 
         filtroPond = None
 
@@ -29,50 +29,50 @@ class GrafoLista:
 
         if self.direcioando:
             for v in self.vertices:
-                self.adjacencia[v] = self.__tuplas_paraDirecionado(v, arestas, filtroPond)
+                self.lista[v] = self.__tuplas_paraDirecionado(v, arestas, filtroPond)
         else:
             for v in self.vertices:
-                self.adjacencia[v] = []
+                self.lista[v] = []
 
             for aresta in arestas:
-                self.adjacencia[aresta[0]].append(filtroPond(aresta))
-                self.adjacencia[aresta[1]].append(filtroPond((aresta[1], aresta[0], aresta[2])))
+                self.lista[aresta[0]].append(filtroPond(aresta))
+                self.lista[aresta[1]].append(filtroPond((aresta[1], aresta[0], aresta[2])))
 
         
     def add_vertice(self, nomeVertice):
         if nomeVertice not in self.vertices:
             self.vertices.append(nomeVertice)
-            self.adjacencia[nomeVertice] = []
+            self.lista[nomeVertice] = []
 
     def add_aresta(self, v1, v2, peso):
         if not self.ponderado: peso = None
-        if v1 not in self.adjacencia: self.add_vertice(v1)
-        if v2 not in self.adjacencia: self.add_vertice(v2)
-        self.adjacencia[v1].append((v2, peso))
+        if v1 not in self.lista: self.add_vertice(v1)
+        if v2 not in self.lista: self.add_vertice(v2)
+        self.lista[v1].append((v2, peso))
 
         if not self.direcioando:
-            self.adjacencia[v2].append((v1, peso))
+            self.lista[v2].append((v1, peso))
 
     def rem_aresta(self, v1, v2, pond=None):
         """Recebe os vértices v1 2 v2 que correspondem a uma aresta, não retorna nada."""
-        if v1 not  in self.adjacencia or v2 not  in self.adjacencia:
+        if v1 not  in self.lista or v2 not  in self.lista:
             raise IndexError("Os vértices fornecidos não existem")
         
         # Para cada tupla que representa uma aresta, no dicionário de v1, verifica se existe a tupla (v2, peso);
-        for tupla in self.adjacencia[v1]:
+        for tupla in self.lista[v1]:
             if tupla == (v2, pond):
-                self.adjacencia[v1].remove(tupla)
-                if not self.direcioando: self.adjacencia[v2].remove((v1, pond))
+                self.lista[v1].remove(tupla)
+                if not self.direcioando: self.lista[v2].remove((v1, pond))
         
                 
     def rem_vertice(self, v):
         """Recebe a aresta que será removida, não retornando nada."""
         if not self.direcioando:
-            arestas = self.adjacencia[v]
+            arestas = self.lista[v]
             for aresta in arestas:
-                self.adjacencia[aresta[0]].remove((v, aresta[1]))
+                self.lista[aresta[0]].remove((v, aresta[1]))
             
-        self.adjacencia.pop(v)
+        self.lista.pop(v)
         self.vertices.remove(v)
 
     def __tuplas_paraDirecionado(self, vertice, arestas, filtro):
