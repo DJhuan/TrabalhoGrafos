@@ -72,6 +72,42 @@ os pesos de cada vértice, e o grafo é não ponderado, o filtro pode normalizar
                 matriz += "{:>4}".format(str(j)) + ' '
             matriz += '\n'
         return matriz
+    
+    def AdicionarArestas(self, v1, v2, valor):
+        aresta = (v1, v2, valor)
+        (v1, v2) = (self.vertices[v1], self.vertices[v2])
+        self.matriz[v1][v2] = valor
+        if self.direcionado == 0:
+            self.matriz[v2][v1] = valor
+
+        if self.ponderado:
+            filtroPond = self.__LISTA_tupla_Ponderada
+        else:
+            filtroPond = self.__LISTA_tupla_Ponderada
+
+        if self.direcionado:
+            self.lista[aresta[0]].append(filtroPond(aresta))
+        else:
+            self.lista[aresta[0]].append(filtroPond(aresta))
+            self.lista[aresta[1]].append(filtroPond((aresta[1], aresta[0], aresta[2])))
+
+    def RemoverArestas(self, v1, v2):
+        """Recebe os vértices v1 2 v2 que correspondem a uma aresta, não retorna nada."""
+        if v1 not  in self.lista or v2 not  in self.lista:
+            raise IndexError("Os vértices fornecidos não existem")
+        self.matriz[self.vertices[v1]][self.vertices[v2]] = None
+        if not self.direcionado:
+            self.matriz[self.vertices[v2]][self.vertices[v1]] = None
+        
+        # Para cada tupla que representa uma aresta, no dicionário de v1, verifica se existe a tupla (v2, peso);
+        for tupla in self.lista[v1]:
+            if tupla[0] == v2:
+                self.lista[v1].remove(tupla)
+                if not self.direcionado:
+                    for tupla2 in self.lista[v2]:
+                        if tupla2[0] == v1:
+                            self.lista[v2].remove(tupla2)
+
 
     @staticmethod
     def __LISTA_tupla_naoPonderada(tupla):
@@ -84,8 +120,10 @@ os pesos de cada vértice, e o grafo é não ponderado, o filtro pode normalizar
     def __MATRIZ_tupla_naoPonderada(self, tupla): return 0
         
 if __name__ == "__main__":
-    v = ["A", "B", "C", "D"]
-    a = [("A", "A", 14), ("A", "B", 3), ("A", "C", 2), ("A", "D", 0)]
-    g = Grafo(v, a, False, True)
+    v = ["A","B","C","D"]
+    a = [("A","A",2), ("A","B",6), ("A","C",9), ("A","D",4)]
+    g = Grafo(v, a, True, True)
+    g.AdicionarArestas("C","D",1)
+    g.RemoverArestas("A","B")
     print(g)
     print(g.lista)
