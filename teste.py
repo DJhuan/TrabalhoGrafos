@@ -44,6 +44,28 @@ class Grafo:
                 grafo_transposto[j][i] = self.grafo[i][j]
         return grafo_transposto
 
+
+    def verifica_ciclo_dfs(self, v, visitado, pai):
+        visitado[v] = True
+        for i in range(self.vertices):
+            if self.grafo[v][i] != '':
+                if visitado[i] == False:
+                    if self.verifica_ciclo_dfs(i, visitado, v):
+                        return True
+                elif self.direcionado or pai != i:
+                    return True
+
+        return False
+
+    def verifica_ciclo(self):
+        visitado = [False] * self.vertices
+        for i in range(self.vertices):
+            if visitado[i] == False:
+                if self.verifica_ciclo_dfs(i, visitado, -1) == True:
+                    return True
+
+        return False
+
     def Verificacoes (self, opcaoVerificacao):
 
         if opcaoVerificacao == "i":
@@ -88,7 +110,7 @@ class Grafo:
             else:
                 print("O grafo não é conexo.")
 
-        if opcaoVerificacao == "v": #O grafo é fortemente conexo? (Essa opção só deve aparecer caso o grafo seja direcionado)
+        if opcaoVerificacao == "v":
             visitado = [False] * self.vertices
             self.dfs(0, visitado)
             if not all(visitado):
@@ -103,11 +125,29 @@ class Grafo:
                 else:
                     print("O grafo é fortemente conexo.")
 
-        """
-        if opcaoVerificacao == "vi": #O grafo possui ciclos?
+        if opcaoVerificacao == "vi":
+            if self.verifica_ciclo():
+                print("O grafo possui ciclos.")
+            else:
+                print("O grafo não possui ciclos.")
 
-        if opcaoVerificacao == "vii": #O grafo é Euleriano? (A resposta deve ser Euleriano, Semi-Euleriano ou Não)
-        """
+        if opcaoVerificacao == "vii":
+            contador = 0
+
+            for i in range(self.vertices):
+                grau = 0
+                for j in range(self.vertices):
+                    if self.grafo[i][j] != '' and i != j :
+                        grau += 1
+                if grau % 2 != 0:
+                    contador += 1
+            if contador == 0:
+                print("É um grafo euleriano.")
+            elif contador == 2:
+                print("É um grafo Semi-Euleriano.")
+            else:
+                print("O grafo não é euleriano e nem semi-euleriano.")
+
 
     def ArvoreBFS(self, inicial):
         arvore = [['']*self.vertices for i in range(self.vertices)]
