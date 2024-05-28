@@ -108,6 +108,36 @@ os pesos de cada vértice, e o grafo é não ponderado, o filtro pode normalizar
                         if tupla2[0] == v1:
                             self.lista[v2].remove(tupla2)
 
+    def ArvoreBFS(self, inicial):
+        arvore = {}
+        for i in self.vertices:
+            arvore[i] = []
+        visitado = ["N"]*len(self.vertices)
+        fila = [inicial]
+        visitado[self.vertices[fila[0]]] = "A"
+
+        while fila:
+            while fila:
+                i = fila.pop(0)
+                for j in self.lista[i]:
+                    if visitado[self.vertices[j[0]]] == "N":
+                        visitado[self.vertices[j[0]]] = "A"
+                        fila.append(j[0])
+                        arvore[i].append(j)
+                visitado[self.vertices[i]] = "V"
+            
+            cont = 0
+            parar = False
+            for vertice in self.vertices:
+                if visitado[cont] == "N" and not parar:
+                    fila.append(vertice)
+                    visitado[cont] = "A"
+                    parar = True
+                cont = cont+1
+
+        print("Árvore de busca em largura:")
+        print(arvore)
+
 
     @staticmethod
     def __LISTA_tupla_naoPonderada(tupla):
@@ -121,9 +151,10 @@ os pesos de cada vértice, e o grafo é não ponderado, o filtro pode normalizar
         
 if __name__ == "__main__":
     v = ["A","B","C","D"]
-    a = [("A","A",2), ("A","B",6), ("A","C",9), ("A","D",4)]
-    g = Grafo(v, a, True, True)
-    g.AdicionarArestas("C","D",1)
-    g.RemoverArestas("A","B")
-    print(g)
-    print(g.lista)
+    a = [("A","A",2), ("A","B",6), ("A","C",9), ("A","D",4), ("B","D",7)]
+    g = Grafo(v, a, False, True)
+    #g.AdicionarArestas("C","D",1)
+    #g.RemoverArestas("A","B")
+    g.ArvoreBFS("D")
+    #print(g)
+    #print(g.lista)
