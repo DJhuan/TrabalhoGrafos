@@ -31,8 +31,6 @@ class Grafo:
                 self.matriz[v[aresta[0]]][v[aresta[1]]] = filtro(aresta)
                 self.matriz[v[aresta[1]]][v[aresta[0]]] = filtro(aresta)
 
-        print(arestas)
-
         ### GRAFO EM LISTA
         filtroPond = None
 
@@ -55,7 +53,6 @@ class Grafo:
                 self.lista[aresta[0]].append(filtroPond(aresta))
                 self.lista[aresta[1]].append(filtroPond((aresta[1], aresta[0], aresta[2])))
 
-
     def __tuplas_paraDirecionado(self, vertice, arestas, filtro):
         """Organiza uma lista de tuplas de um único vértice. O argumento 'filtro'
 é usado como forma de padronizar a ponderação dos vértices. Ex.: se o arquivo fornece
@@ -65,6 +62,9 @@ os pesos de cada vértice, e o grafo é não ponderado, o filtro pode normalizar
         return listaAdj
     
     def __str__(self):
+        """Método chamado implicitamente pelo interpretador. 
+Não recebe nada e retorna uma string que representa tanto a matriz
+quanto a lista de adjacência."""
         string = ""
         for i in self.vertices:
             i = self.vertices[i]
@@ -77,23 +77,14 @@ os pesos de cada vértice, e o grafo é não ponderado, o filtro pode normalizar
             
         return string
     
-    def AdicionarArestas(self, v1, v2, valor):
-        aresta = (v1, v2, valor)
-        (v1, v2) = (self.vertices[v1], self.vertices[v2])
-        self.matriz[v1][v2] = valor
-        if self.direcionado == 0:
-            self.matriz[v2][v1] = valor
+    def AdicionarArestas(self, v1, v2, valor=0):
+        """Adiciona a aresta a partir de dois vértices recebidos e um valor. Não retorna nada."""
+        self.matriz[self.vertices[v1]][self.vertices[v2]] = valor
+        self.lista[v1].append((v2, valor))
 
-        if self.ponderado:
-            filtroPond = self.__LISTA_tupla_Ponderada
-        else:
-            filtroPond = self.__LISTA_tupla_Ponderada
-
-        if self.direcionado:
-            self.lista[aresta[0]].append(filtroPond(aresta))
-        else:
-            self.lista[aresta[0]].append(filtroPond(aresta))
-            self.lista[aresta[1]].append(filtroPond((aresta[1], aresta[0], aresta[2])))
+        if not self.direcionado:
+            self.matriz[self.vertices[v2]][self.vertices[v1]] = valor
+        self.lista[v2].append((v1, valor))
 
     def RemoverArestas(self, v1, v2):
         """Recebe os vértices v1 2 v2 que correspondem a uma aresta, não retorna nada."""
@@ -142,22 +133,25 @@ os pesos de cada vértice, e o grafo é não ponderado, o filtro pode normalizar
         print("Árvore de busca em largura:")
         print(arvore)
 
-
     @staticmethod
     def __LISTA_tupla_naoPonderada(tupla):
-        return (tupla[1], None)
+        """Recebe uma tupla (v1, v2, valor) que será formatada 
+em uma tupla do tipo aresta não ponderada."""
+        return (tupla[1], 0)
     
     def __LISTA_tupla_Ponderada(self, tupla):
+        """Recebe uma tupla (v1, v2, valor) que será formatada 
+em uma tupla do tipo aresta não ponderada."""
         return (tupla[1], tupla[2])
     
+    # As funções abaixo tem o mesmo objetivo das acima, com a diferença que 
     def __MATRIZ_tupla_ponderada(self, tupla): return (tupla[2])
-    def __MATRIZ_tupla_naoPonderada(self, tupla): return 0
+    def __MATRIZ_tupla_naoPonderada(self, _): return 0
         
 if __name__ == "__main__":
     v = ["A","B","C","D"]
     a = [("A","A",2), ("A","B",6), ("A","C",9), ("A","D",4)]
-    g = Grafo(v, a, True, False)
-    g.AdicionarArestas("C","D",1)
+    g = Grafo(v, a, False, False)
+    g.AdicionarArestas("C","D")
     g.RemoverArestas("A","B")
     print(g)
-    # print(g.lista)
