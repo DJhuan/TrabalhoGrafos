@@ -65,13 +65,17 @@ os pesos de cada vértice, e o grafo é não ponderado, o filtro pode normalizar
         return listaAdj
     
     def __str__(self):
-        matriz = ""
+        string = ""
         for i in self.vertices:
             i = self.vertices[i]
             for j in self.matriz[i]:
-                matriz += "{:>4}".format(str(j)) + ' '
-            matriz += '\n'
-        return matriz
+                string += "{:>4}".format(str(j)) + ' '
+            string += '\n'
+
+        for key in self.lista:
+            string += f"{key}: {str(self.lista[key])}\n"
+            
+        return string
     
     def AdicionarArestas(self, v1, v2, valor):
         aresta = (v1, v2, valor)
@@ -151,10 +155,9 @@ os pesos de cada vértice, e o grafo é não ponderado, o filtro pode normalizar
         
 if __name__ == "__main__":
     v = ["A","B","C","D"]
-    a = [("A","A",2), ("A","B",6), ("A","C",9), ("A","D",4), ("B","D",7)]
-    g = Grafo(v, a, False, True)
-    #g.AdicionarArestas("C","D",1)
-    #g.RemoverArestas("A","B")
-    g.ArvoreBFS("D")
-    #print(g)
-    #print(g.lista)
+    a = [("A","A",2), ("A","B",6), ("A","C",9), ("A","D",4)]
+    g = Grafo(v, a, True, False)
+    g.AdicionarArestas("C","D",1)
+    g.RemoverArestas("A","B")
+    print(g)
+    # print(g.lista)
