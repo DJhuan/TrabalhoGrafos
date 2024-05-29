@@ -84,7 +84,7 @@ quanto a lista de adjacência."""
 
         if not self.direcionado:
             self.matriz[self.vertices[v2]][self.vertices[v1]] = valor
-        self.lista[v2].append((v1, valor))
+            self.lista[v2].append((v1, valor))
 
     def RemoverArestas(self, v1, v2):
         """Recebe os vértices v1 2 v2 que correspondem a uma aresta, não retorna nada."""
@@ -94,7 +94,6 @@ quanto a lista de adjacência."""
         if not self.direcionado:
             self.matriz[self.vertices[v2]][self.vertices[v1]] = None
         
-        # Para cada tupla que representa uma aresta, no dicionário de v1, verifica se existe a tupla (v2, peso);
         for tupla in self.lista[v1]:
             if tupla[0] == v2:
                 self.lista[v1].remove(tupla)
@@ -130,8 +129,7 @@ quanto a lista de adjacência."""
                     parar = True
                 cont = cont+1
 
-        print("Árvore de busca em largura:")
-        print(arvore)
+        return arvore
 
     @staticmethod
     def __LISTA_tupla_naoPonderada(tupla):
@@ -153,5 +151,6 @@ if __name__ == "__main__":
     a = [("A","A",2), ("A","B",6), ("A","C",9), ("A","D",4)]
     g = Grafo(v, a, False, False)
     g.AdicionarArestas("C","D")
-    g.RemoverArestas("A","B")
+    #g.RemoverArestas("A","B")
+    print(g.ArvoreBFS("B"))
     print(g)
