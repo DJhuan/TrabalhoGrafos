@@ -102,6 +102,41 @@ quanto a lista de adjacência."""
                         if tupla2[0] == v1:
                             self.lista[v2].remove(tupla2)
 
+    def AdicionarVertice(self, vertice):
+        """Adiciona um novo vértice ao grafo e atualiza a matriz e a lista de adjacências."""
+        if vertice in self.vertices:
+            print(f"Vértice '{vertice}' já existe.")
+        else:
+            i = len(self.vertices)
+            self.vertices[vertice] = i
+            for linha in self.matriz:
+                linha.append(None)
+            self.matriz.append([None] * (i + 1))
+            self.lista[vertice] = []
+
+            for v in self.lista:
+                self.lista[v].append((vertice, None))
+
+    def RemoverVertice(self, vertice):
+        """Remove um vértice do grafo e atualiza a matriz e a lista de adjacências."""
+        if vertice not in self.vertices:
+            print(f"Vértice '{vertice}' não existe.")
+        else:
+            i = self.vertices[vertice]
+
+            self.matriz.pop(i)
+            for linha in self.matriz:
+                linha.pop(i)
+
+            self.lista.pop(vertice)
+            for chave in self.lista:
+                self.lista[chave] = [(v, peso) for v, peso in self.lista[chave] if v != vertice]
+
+            del self.vertices[vertice]
+            for v in self.vertices:
+                if self.vertices[v] > i:
+                    self.vertices[v] -= 1
+
     def ArvoreBFS(self, inicial):
         arvore = {}
         for i in self.vertices:
