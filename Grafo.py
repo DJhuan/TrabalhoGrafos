@@ -1,5 +1,5 @@
 class Grafo:
-    def __init__(self, vertices, arestas, direcionado, ponderado):
+    def __init__(self, vertices=[], arestas=[], direcionado=True, ponderado=False):
         """Construtor da classe"""
         self.vertices = {}
         for i, vertice in enumerate(vertices):
@@ -24,7 +24,6 @@ class Grafo:
         v = self.vertices
         if self.direcionado :
             for aresta in arestas:
-                print(aresta)
                 self.matriz[v[aresta[0]]][v[aresta[1]]] = filtro(aresta)
         else:
             for aresta in arestas:
@@ -51,7 +50,8 @@ class Grafo:
 
             for aresta in arestas:
                 self.lista[aresta[0]].append(filtroPond(aresta))
-                self.lista[aresta[1]].append(filtroPond((aresta[1], aresta[0], aresta[2])))
+                if not (aresta[0] == aresta[1]):
+                    self.lista[aresta[1]].append(filtroPond((aresta[1], aresta[0], aresta[2])))
 
     def __tuplas_paraDirecionado(self, vertice, arestas, filtro):
         """Organiza uma lista de tuplas de um único vértice. O argumento 'filtro'
@@ -65,18 +65,47 @@ os pesos de cada vértice, e o grafo é não ponderado, o filtro pode normalizar
         """Método chamado implicitamente pelo interpretador. 
 Não recebe nada e retorna uma string que representa tanto a matriz
 quanto a lista de adjacência."""
-        string = ""
-        for i in self.vertices:
-            i = self.vertices[i]
+        string = "=== MATRIZ ===\n"
+        for v in self.vertices:
+            i = self.vertices[v]
             for j in self.matriz[i]:
                 string += "{:>4}".format(str(j)) + ' '
             string += '\n'
-
+        string += "\n=== LISTA ===\n"
         for key in self.lista:
             string += f"{key}: {str(self.lista[key])}\n"
             
         return string
     
+    def AdicionarVertice(self, vNome):
+        """Recebe o nome de um vétice para ser adicionado no grafo. Sem retornos."""
+        if vNome not in self.vertices:
+            numVertice = len(self.vertices)
+            self.vertices[vNome] = numVertice
+            self.lista[vNome] = []
+
+            for i in range(numVertice):
+                self.matriz[i].append(None)
+            self.matriz.append([None]*(numVertice + 1))
+
+    def RemoverVertice(self, v):
+        for vertice, arestasDoVertice in self.lista.items():
+            if arestasDoVertice != self.lista[v]:
+                arestasFiltradas = []
+                for a in arestasDoVertice:
+                    if not a[0] == v: arestasFiltradas.append(a)
+                self.lista[vertice] = arestasFiltradas
+
+        self.matriz.pop(self.vertices[v])
+        for i in self.matriz:
+            i.pop(self.vertices[v])
+
+        self.vertices.pop(v)
+        self.lista.pop(v)
+
+        for i, v in enumerate(self.vertices):
+            self.vertices[v] = i
+
     def AdicionarArestas(self, v1, v2, valor=0):
         """Adiciona a aresta a partir de dois vértices recebidos e um valor. Não retorna nada."""
         self.matriz[self.vertices[v1]][self.vertices[v2]] = valor
@@ -180,12 +209,22 @@ em uma tupla do tipo aresta não ponderada."""
     # As funções abaixo tem o mesmo objetivo das acima, com a diferença que 
     def __MATRIZ_tupla_ponderada(self, tupla): return (tupla[2])
     def __MATRIZ_tupla_naoPonderada(self, _): return 0
+    
         
 if __name__ == "__main__":
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     v = ["A","B","C","D"]
-    a = [("A","A",2), ("A","B",6), ("A","C",9), ("A","D",4)]
-    g = Grafo(v, a, False, False)
-    g.AdicionarArestas("C","D")
-    #g.RemoverArestas("A","B")
-    print(g.ArvoreBFS("B"))
+    Vv = ["A","B","C"]
+    
+    a = [("A","A",2), ("A","B",6), ("B","C",9), ("B","D",4)]
+    Aa = []
+
+    g = Grafo(Vv, Aa, True, False)
     print(g)
+    g.AdicionarArestas("A", "C")
+    g.AdicionarArestas("B", "C")
+    g.AdicionarArestas("B", "A")
+    print(g)
+    g.RemoverVertice("C")
+    print(g)
+    g.RemoverVertice
