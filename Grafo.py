@@ -194,6 +194,31 @@ quanto a lista de adjacência."""
                 cont = cont+1
 
         return arvore
+    
+    def OrdemTopologica(self):
+        grau = {}
+        print (self.matriz)
+
+        for vertice in self.vertices:
+            ngrau = 0
+            for i in self.vertices:
+                print(self.matriz[self.vertices[i]][self.vertices[vertice]])
+                if self.matriz[self.vertices[i]][self.vertices[vertice]] != None and i != vertice:
+                    ngrau = ngrau+1
+            grau[vertice] = ngrau
+
+        listaExecucao = []
+
+        while len(listaExecucao) < len(self.vertices):
+            for i in grau:
+                if grau[i] == 0:
+                    listaExecucao.append(i)
+                    for j in self.vertices:
+                        if self.matriz[self.vertices[i]][self.vertices[j]] != None:
+                            grau[j] = grau[j]-1
+                    grau[i] = None
+
+        print (listaExecucao)
 
     @staticmethod
     def __LISTA_tupla_naoPonderada(tupla):
@@ -214,17 +239,19 @@ em uma tupla do tipo aresta não ponderada."""
 if __name__ == "__main__":
     print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     v = ["A","B","C","D"]
-    Vv = ["A","B","C"]
+    Vv = ["A","B","C","D","E","F"]
     
     a = [("A","A",2), ("A","B",6), ("B","C",9), ("B","D",4)]
-    Aa = []
-
+    Aa = [("A","C",2), ("B","C",6), ("C","F",9), ("B","D",4), ("B","A",2), ("D","E",7), ("E","F",8)]
+    
     g = Grafo(Vv, Aa, True, False)
-    print(g)
-    g.AdicionarArestas("A", "C")
-    g.AdicionarArestas("B", "C")
-    g.AdicionarArestas("B", "A")
-    print(g)
-    g.RemoverVertice("C")
-    print(g)
-    g.RemoverVertice
+    #print(g)
+    #g.AdicionarArestas("A", "C")
+    #g.AdicionarArestas("B", "C")
+    #g.AdicionarArestas("B", "A")
+    #print(g)
+    #g.RemoverVertice("C")
+    #print(g)
+    #g.RemoverVertice
+
+    g.OrdemTopologica()
