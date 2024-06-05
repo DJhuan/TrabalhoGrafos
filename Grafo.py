@@ -77,34 +77,6 @@ quanto a lista de adjacência."""
             
         return string
     
-    def AdicionarVertice(self, vNome):
-        """Recebe o nome de um vétice para ser adicionado no grafo. Sem retornos."""
-        if vNome not in self.vertices:
-            numVertice = len(self.vertices)
-            self.vertices[vNome] = numVertice
-            self.lista[vNome] = []
-
-            for i in range(numVertice):
-                self.matriz[i].append(None)
-            self.matriz.append([None]*(numVertice + 1))
-
-    def RemoverVertice(self, v):
-        for vertice, arestasDoVertice in self.lista.items():
-            if arestasDoVertice != self.lista[v]:
-                arestasFiltradas = []
-                for a in arestasDoVertice:
-                    if not a[0] == v: arestasFiltradas.append(a)
-                self.lista[vertice] = arestasFiltradas
-
-        self.matriz.pop(self.vertices[v])
-        for i in self.matriz:
-            i.pop(self.vertices[v])
-
-        self.vertices.pop(v)
-        self.lista.pop(v)
-
-        for i, v in enumerate(self.vertices):
-            self.vertices[v] = i
 
     def AdicionarArestas(self, v1, v2, valor=0):
         """Adiciona a aresta a partir de dois vértices recebidos e um valor. Não retorna nada."""
@@ -192,6 +164,36 @@ quanto a lista de adjacência."""
                     visitado[cont] = "A"
                     parar = True
                 cont = cont+1
+
+        return arvore
+        
+    def ArvoreDFS(self, inicial):
+        """Faz uma busca em profundidade a partir de um vértice inicial e retorna uma arvore DFS."""
+        arvore = {}
+        for i in range(self.vertices):
+            arvore[i] = []
+        visitado = ["N"]*self.vertices
+        pilha = [inicial]
+        visitado[inicial] = "A"
+
+        while pilha:
+            i = pilha.pop()
+            if visitado[i] == "A":
+                for indice, valor in enumerate(self.grafo[i]):
+                    if valor != '' and visitado[indice] == "N":
+                        visitado[indice] = "A"
+                        pilha.append(indice)
+                        arvore[i].append((indice, valor))
+                visitado[i] = "V"
+
+        cont = 0
+        parar = False
+        while cont < len(visitado) and not parar:
+            if visitado[cont] == "N":
+                pilha.append(cont)
+                visitado[cont] = "A"
+                parar = True
+            cont = cont + 1
 
         return arvore
     
