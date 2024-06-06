@@ -140,8 +140,6 @@ quanto a lista de adjacência."""
 
     def ArvoreBFS(self, inicial):
         arvore = {}
-        for i in self.vertices:
-            arvore[i] = []
         visitado = ["N"]*len(self.vertices)
         fila = [inicial]
         visitado[self.vertices[fila[0]]] = "A"
@@ -149,6 +147,7 @@ quanto a lista de adjacência."""
         while fila:
             while fila:
                 i = fila.pop(0)
+                arvore[i] = []
                 for j in self.lista[i]:
                     if visitado[self.vertices[j[0]]] == "N":
                         visitado[self.vertices[j[0]]] = "A"
@@ -158,13 +157,12 @@ quanto a lista de adjacência."""
             
             cont = 0
             parar = False
-            for vertice in self.vertices:
+            for vertice in arvore:
                 if visitado[cont] == "N" and not parar:
                     fila.append(vertice)
                     visitado[cont] = "A"
                     parar = True
                 cont = cont+1
-
         return arvore
         
     def ArvoreDFS(self, inicial):
@@ -222,6 +220,27 @@ quanto a lista de adjacência."""
 
         print (listaExecucao)
 
+    def CompConexos(self):
+        """Retorna componentes conexos como listas de vértices"""
+
+        if self.direcionado:
+            msg = "A função CompConexos não pode ser utilizada em grafos não direcionados!"
+            raise(PropriedadesIncompativeis(msg))
+
+        componentes = []
+        visitados = [False] * len(self.vertices)
+
+        for vertice in self.vertices:
+            verticeId = self.vertices[vertice]
+            if not visitados[verticeId]:
+                componente = list(self.ArvoreBFS(vertice).keys())
+                for v in componente: 
+                    visitados[self.vertices[v]] = True
+
+                componentes.append(componente)
+                
+        return componentes
+
     @staticmethod
     def __LISTA_tupla_naoPonderada(tupla):
         """Recebe uma tupla (v1, v2, valor) que será formatada 
@@ -236,24 +255,17 @@ em uma tupla do tipo aresta não ponderada."""
     # As funções abaixo tem o mesmo objetivo das acima, com a diferença que 
     def __MATRIZ_tupla_ponderada(self, tupla): return (tupla[2])
     def __MATRIZ_tupla_naoPonderada(self, _): return 0
-    
+
+class PropriedadesIncompativeis(Exception):
+    def __init__(self, message):
+        super().__init__(message)
         
 if __name__ == "__main__":
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    v = ["A","B","C","D"]
-    Vv = ["A","B","C","D","E","F"]
+    v = ["A","B","C","D","E","F", "G", "H"]
     
-    a = [("A","A",2), ("A","B",6), ("B","C",9), ("B","D",4)]
-    Aa = [("A","C",2), ("B","C",6), ("C","F",9), ("B","D",4), ("B","A",2), ("D","E",7), ("E","F",8)]
+    a = [("A","B",2), ("B","C",6), ("D","E",9), ("D","F",4), ("G","H",4)]
     
-    g = Grafo(Vv, Aa, True, False)
-    #print(g)
-    #g.AdicionarArestas("A", "C")
-    #g.AdicionarArestas("B", "C")
-    #g.AdicionarArestas("B", "A")
-    #print(g)
-    #g.RemoverVertice("C")
-    #print(g)
-    #g.RemoverVertice
-
-    g.OrdemTopologica()
+    g = Grafo(v, a, True, False)
+    print(g.CompConexos())
+    
+    print("=== + FIM + ===")
