@@ -164,37 +164,38 @@ quanto a lista de adjacência."""
                     parar = True
                 cont = cont+1
         return arvore
-        
+
     def ArvoreDFS(self, inicial):
         """Faz uma busca em profundidade a partir de um vértice inicial e retorna uma arvore DFS."""
         arvore = {}
-        for i in range(self.vertices):
+        for i in self.vertices:
             arvore[i] = []
-        visitado = ["N"]*self.vertices
+        visitado = ["N"]*len(self.vertices)
         pilha = [inicial]
-        visitado[inicial] = "A"
+        visitado[self.vertices[inicial]] = "A"
 
         while pilha:
             i = pilha.pop()
-            if visitado[i] == "A":
-                for indice, valor in enumerate(self.grafo[i]):
-                    if valor != '' and visitado[indice] == "N":
-                        visitado[indice] = "A"
-                        pilha.append(indice)
-                        arvore[i].append((indice, valor))
-                visitado[i] = "V"
+            if visitado[self.vertices[i]] == "A":
+                for j in self.lista[i]:
+                    if visitado[self.vertices[j[0]]] == "N":
+                        visitado[self.vertices[j[0]]] = "A"
+                        pilha.append(j[0])
+                        arvore[i].append(j)
+                visitado[self.vertices[i]] = "V"
 
         cont = 0
         parar = False
         while cont < len(visitado) and not parar:
             if visitado[cont] == "N":
-                pilha.append(cont)
+                pilha.append(list(self.vertices.keys())[cont])
                 visitado[cont] = "A"
                 parar = True
             cont = cont + 1
 
         return arvore
-    
+
+
     def OrdemTopologica(self):
         grau = {}
         print (self.matriz)
@@ -265,7 +266,12 @@ if __name__ == "__main__":
     
     a = [("A","B",2), ("B","C",6), ("D","E",9), ("D","F",4), ("G","H",4)]
     
-    g = Grafo(v, a, True, False)
+    g = Grafo(v, a, False, False)
     print(g.CompConexos())
-    
+
+    arvore_dfs = g.ArvoreDFS('A')
+    print("ARVORE DFS: ")
+    print(arvore_dfs)
+
+
     print("=== + FIM + ===")
