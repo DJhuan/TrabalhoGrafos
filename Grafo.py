@@ -88,7 +88,7 @@ quanto a lista de adjacência."""
             self.lista[v2].append((v1, valor))
 
     def RemoverArestas(self, v1, v2):
-        """Recebe os vértices v1 2 v2 que correspondem a uma aresta, não retorna nada."""
+        """Recebe os vértices v1 e v2 que correspondem a uma aresta e a remove. Não retorna nada."""
         if v1 not  in self.lista or v2 not  in self.lista:
             raise IndexError("Os vértices fornecidos não existem")
         self.matriz[self.vertices[v1]][self.vertices[v2]] = None
@@ -139,8 +139,13 @@ quanto a lista de adjacência."""
                     self.vertices[v] -= 1
 
     def ArvoreBFS(self, inicial):
+        """Recebe um vértice inicial e realiza a busca em largura a partir dele. Retorna a árvore de busca 
+        em largura na forma de lista."""
         arvore = {}
-        visitado = ["N"]*len(self.vertices)
+        visitado = ["N"]*len(self.vertices) #Lista de todos os vértices, que informa o estado atual de cada vértice.
+        #"N": ainda não foi encontrado.
+        #"A": foi encontrado, mas não foi explorado.
+        #"V": foi explorado.
         fila = [inicial]
         visitado[self.vertices[fila[0]]] = "A"
 
@@ -155,6 +160,7 @@ quanto a lista de adjacência."""
                         arvore[i].append(j)
                 visitado[self.vertices[i]] = "V"
             
+            #Verifica se há algum vértice que não está conectado aos já explorados.
             cont = 0
             parar = False
             for vertice in arvore:
@@ -197,13 +203,12 @@ quanto a lista de adjacência."""
 
 
     def OrdemTopologica(self):
-        grau = {}
-        print (self.matriz)
+        """Argoritmo de Kahn. Retorna uma possibilidade de ordem de execução"""
+        grau = {} #Dicionário que contém o grau atual de cada vértice.
 
         for vertice in self.vertices:
             ngrau = 0
             for i in self.vertices:
-                print(self.matriz[self.vertices[i]][self.vertices[vertice]])
                 if self.matriz[self.vertices[i]][self.vertices[vertice]] != None and i != vertice:
                     ngrau = ngrau+1
             grau[vertice] = ngrau
@@ -219,7 +224,7 @@ quanto a lista de adjacência."""
                             grau[j] = grau[j]-1
                     grau[i] = None
 
-        print (listaExecucao)
+        return listaExecucao
 
     def CompConexos(self):
         """Retorna componentes conexos como listas de vértices"""
@@ -241,6 +246,39 @@ quanto a lista de adjacência."""
                 componentes.append(componente)
                 
         return componentes
+    
+    def ArvoreGeradoraMinima (self):
+        listaArestas = [] #configuração: (valor, v1, v2)
+        contador = 0
+        for linha in range (len(self.vertices)):
+            for coluna in range (contador, len(self.vertices)):
+                if self.matriz[linha][coluna] != None and linha != coluna:
+                    listaArestas.append ((self.matriz[linha][coluna], linha, coluna))
+            if not self.direcionado:
+                contador = contador+1
+        listaArestas.sort()
+        print (listaArestas)
+
+
+        arvore = [[None]*len(self.vertices) for _ in range(len(self.vertices))]
+        
+        quantidade = 0
+        cont = 0
+        qtArestas = len(listaArestas)
+        while quantidade < len(self.vertices)-1 and cont < qtArestas:
+            cont = cont+1
+            aresta = listaArestas.pop(0)
+
+            arvore[aresta[1]][aresta[2]] = aresta[0] #verificar ciclos
+            if not self.direcionado:
+                arvore[aresta[2]][aresta[1]] = aresta[0]
+            quantidade = quantidade+1
+            for i in listaArestas:
+                if i[1] == aresta[1] and i[2] == aresta[2]:
+                    listaArestas.remove(i)
+        
+
+    
 
     @staticmethod
     def __LISTA_tupla_naoPonderada(tupla):
@@ -266,12 +304,13 @@ if __name__ == "__main__":
     
     a = [("A","B",2), ("B","C",6), ("D","E",9), ("D","F",4), ("G","H",4)]
     
-    g = Grafo(v, a, False, False)
-    print(g.CompConexos())
+    g = Grafo(v, a, False, True)
+    #print(g.CompConexos())
 
     arvore_dfs = g.ArvoreDFS('A')
-    print("ARVORE DFS: ")
-    print(arvore_dfs)
+    #print("ARVORE DFS: ")
+    #print(arvore_dfs)
+    g.ArvoreGeradoraMinima()
 
 
-    print("=== + FIM + ===")
+    #print("=== + FIM + ===")
