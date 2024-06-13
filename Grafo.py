@@ -276,9 +276,117 @@ quanto a lista de adjacência."""
             for i in listaArestas:
                 if i[1] == aresta[1] and i[2] == aresta[2]:
                     listaArestas.remove(i)
-        
 
-    
+
+
+    def dfs(self, v, visitado):
+        visitado[v] = True
+
+        for i in range(len(self.vertices)):
+            if self.matriz[v][i] and not visitado[i]:
+                self.dfs(i, visitado)
+
+    def verifica_ciclo(self, v, visitado, pai):
+        visitado[self.vertices[v]] = True
+
+        for i in self.vertices.keys():
+            if self.matriz[self.vertices[v]][self.vertices[i]]:
+                if visitado[self.vertices[i]] == False:
+                    if self.verifica_ciclo(i, visitado, v):
+                        return True
+                elif i != pai:
+                    return True
+
+        return False
+
+
+    def VerificacoesGrafo(self, opcaoVerificacao):
+        """Realiza diferentes verificações no grafo com base na opçao selecionada."""
+
+        if opcaoVerificacao == "i": #quantidade de vertices
+            contVertices = len(self.vertices)
+            print("Quantidade de Vértices: ", contVertices)
+
+        if opcaoVerificacao == "ii": #quantidade de arestas
+            contAresta = 0
+            for i in range (len(self.vertices)):
+                for j in range (len(self.vertices)):
+                    if self.matriz[i][j]:
+                        contAresta += 1
+            if not self.direcionado:
+                contAresta = contAresta // 2
+            print("Quantidade de Arestas:", contAresta)
+
+        if opcaoVerificacao == "iii": #conexo?
+                visitado = [False] * len(self.vertices)
+                self.dfs(0, visitado)
+                if all(visitado):
+                    print("O grafo é conexo.")
+                else:
+                    print("O grafo não é conexo.")
+
+        if opcaoVerificacao == "iv":  #bipartido?
+            cor = [-1] * len(self.vertices)
+            fila = []
+
+            for inicio in range(len(self.vertices)):
+                if cor[inicio] == -1:
+                    cor[inicio] = 1
+                    fila.append(inicio)
+
+                    while fila:
+                        u = fila.pop(0)
+
+                        if self.matriz[u][u]:
+                            print("O grafo não é bipartido.")
+                            return
+
+                        for v in range(len(self.vertices)):
+                            if self.matriz[u][v] is not None:
+                                if cor[v] == -1:
+                                    cor[v] = 1 - cor[u]
+                                    fila.append(v)
+                                elif cor[v] == cor[u]:
+                                    print("O grafo não é bipartido.")
+                                    return
+
+            print("O grafo é bipartido.")
+
+        if opcaoVerificacao == "v": #euleriano, semi-euleriano ou nenhum dos dois?
+            contador = 0
+
+            for i in self.vertices.keys():
+                grau = 0
+                for j in self.vertices.keys():
+                    if self.matriz[self.vertices[i]][self.vertices[j]] is not None and i != j :
+                        grau += 1
+                if grau % 2 != 0:
+                    contador += 1
+            if contador == 0:
+                print("É um grafo euleriano.")
+            elif contador == 2:
+                print("É um grafo Semi-Euleriano.")
+            else:
+                print("O grafo não é euleriano e nem semi-euleriano.")
+
+        if opcaoVerificacao == "vi": #hamiltoniano?
+            print("Ainda não implementado. (hamiltoniano)")
+
+        if opcaoVerificacao == "vii": #tem ciclos?
+            visitado = [False] * len(self.vertices)
+            ciclo = False
+            for i in self.vertices.keys():
+                if visitado[self.vertices[i]] == False:
+                    if self.verifica_ciclo(i, visitado, None) == True:
+                        ciclo = True
+            if ciclo:
+                print("O grafo possui ciclos.")
+            else:
+                print("O grafo não possui ciclos.")
+
+        if opcaoVerificacao == "viii": #planar?
+            print("Ainda não implementado. (planar)")
+
 
     @staticmethod
     def __LISTA_tupla_naoPonderada(tupla):
@@ -303,7 +411,7 @@ if __name__ == "__main__":
     v = ["A","B","C","D","E","F", "G", "H"]
     
     a = [("A","B",2), ("B","C",6), ("D","E",9), ("D","F",4), ("G","H",4)]
-    
+
     g = Grafo(v, a, False, True)
     #print(g.CompConexos())
 
@@ -312,5 +420,19 @@ if __name__ == "__main__":
     #print(arvore_dfs)
     g.ArvoreGeradoraMinima()
 
+    contTeste=0
+    while contTeste<8:
+        print("Insira a opção referente a verificação que deseja fazer: ")
+        print("i. qtd de vertices ")
+        print("ii. qtd de arestas ")
+        print("iii. conexo? ")
+        print("iv. bipartido? ")
+        print("v. euleriano? ")
+        print("vi. hamiltoniano? ")
+        print("vii. ciclico? ")
+        print("viii. planar? ")
+        opcaoVerificacao = input()
+        g.VerificacoesGrafo(opcaoVerificacao)
+        contTeste+=1
 
     #print("=== + FIM + ===")
