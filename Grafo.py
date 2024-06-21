@@ -30,7 +30,7 @@ class Grafo:
                 self.matriz[v[aresta[0]]][v[aresta[1]]] = filtro(aresta)
                 self.matriz[v[aresta[1]]][v[aresta[0]]] = filtro(aresta)
 
-        ### GRAFO EM LISTA
+        ### GRAFO EM LISTA 
         filtroPond = None
 
         if len(arestas) > 0:
@@ -278,7 +278,6 @@ quanto a lista de adjacência."""
                     listaArestas.remove(i)
 
 
-
     def dfs(self, v, visitado):
         visitado[v] = True
 
@@ -387,6 +386,40 @@ quanto a lista de adjacência."""
         if opcaoVerificacao == "viii": #planar?
             print("Ainda não implementado. (planar)")
 
+    def Dijkstra(self, verticeInicial):
+        distancias = {}
+        for key in self.vertices.keys():
+            distancias[key] = (False, float('inf'))
+        distancias[verticeInicial] = (True, 0, None)
+        fila = []
+        fila.append(verticeInicial)
+
+        while fila:
+            vAtual = fila.pop(0)
+            for nomeV, distV in self.lista[vAtual]:
+                d = distancias[vAtual][1] + distV
+
+                if not distancias[nomeV][0]:
+                    fila.append(nomeV)
+                    distancias[nomeV] = (True, d, vAtual)
+                elif distancias[nomeV][1] > d:
+                    distancias[nomeV] = (True, d, vAtual)
+
+        return distancias
+    
+    def MenorCaminho(self, vIni, vFinal):
+        distancias = self.Dijkstra(vIni)
+
+
+        (_, d, traceback) = distancias[vFinal]
+        caminho = f"{vFinal} (Distancia: {d})"
+
+        while traceback != None:
+            caminho = f"{traceback} -> " + caminho
+            (*_, traceback) = distancias[traceback]
+
+        return caminho
+        
 
     @staticmethod
     def __LISTA_tupla_naoPonderada(tupla):
@@ -408,31 +441,16 @@ class PropriedadesIncompativeis(Exception):
         super().__init__(message)
         
 if __name__ == "__main__":
-    v = ["A","B","C","D","E","F", "G", "H"]
+    v = ["A","B","C", "D", "E", "F", "G"]
     
-    a = [("A","B",2), ("B","C",6), ("D","E",9), ("D","F",4), ("G","H",4)]
+    a = [("D","A",4), ("D","E",2), ("A","C",3), ("A","E",4), ("E","C",4),
+         ("E","G",5), ("C","F",5), ("C","B",2), ("C","G",5), ("B","C",6),
+         ("B","F",2), ("G","F",5)]
+    
+    aA = [("A","B",6)]
 
-    g = Grafo(v, a, False, True)
-    #print(g.CompConexos())
-
-    arvore_dfs = g.ArvoreDFS('A')
-    #print("ARVORE DFS: ")
-    #print(arvore_dfs)
-    g.ArvoreGeradoraMinima()
-
-    contTeste=0
-    while contTeste<8:
-        print("Insira a opção referente a verificação que deseja fazer: ")
-        print("i. qtd de vertices ")
-        print("ii. qtd de arestas ")
-        print("iii. conexo? ")
-        print("iv. bipartido? ")
-        print("v. euleriano? ")
-        print("vi. hamiltoniano? ")
-        print("vii. ciclico? ")
-        print("viii. planar? ")
-        opcaoVerificacao = input()
-        g.VerificacoesGrafo(opcaoVerificacao)
-        contTeste+=1
+    g = Grafo(v, a, True", True)
+    
+    print(g.MenorCaminho("D", "C"))
 
     #print("=== + FIM + ===")
