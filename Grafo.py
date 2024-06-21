@@ -204,14 +204,15 @@ quanto a lista de adjacência."""
 
     def OrdemTopologica(self):
         """Argoritmo de Kahn. Retorna uma possibilidade de ordem de execução"""
+        if self.VerificacoesGrafo("vii") == "O grafo possui ciclos.":
+            raise IndexError("O grafo possui ciclos. Não é possível calcular a ordem topológica.")
         grau = {} #Dicionário que contém o grau atual de cada vértice.
 
-        for vertice in self.vertices:
-            ngrau = 0
-            for i in self.vertices:
-                if self.matriz[self.vertices[i]][self.vertices[vertice]] != None and i != vertice:
-                    ngrau = ngrau+1
-            grau[vertice] = ngrau
+        for vertice in self.lista:
+            grau[vertice] = 0
+        for vertice in self.lista:
+            for i in self.lista[vertice]:
+                grau[i[0]] += 1
 
         listaExecucao = []
 
@@ -219,12 +220,12 @@ quanto a lista de adjacência."""
             for i in grau:
                 if grau[i] == 0:
                     listaExecucao.append(i)
-                    for j in self.vertices:
-                        if self.matriz[self.vertices[i]][self.vertices[j]] != None:
-                            grau[j] = grau[j]-1
+                    for j in self.lista[i]:
+                        grau[j[0]] -= 1
                     grau[i] = None
 
         return listaExecucao
+    
 
     def CompConexos(self):
         """Retorna componentes conexos como listas de vértices"""
@@ -247,20 +248,56 @@ quanto a lista de adjacência."""
                 
         return componentes
     
+    def CicloArvoreGeradora(self, lista):
+        """Transforma o grafo direcionado em não direcionado e verifica o ciclo."""
+        arvore2 = {}
+        for vertice in lista:
+            arvore2[vertice] = []
+        for vertice in lista:
+            for tupla in lista[vertice]:
+                arvore2[vertice].append((tupla[0], tupla[1]))
+                if self.direcionado:
+                    arvore2[tupla[0]].append((vertice, tupla[1]))
+        ciclo = False
+        visitado = ["N"]*len(self.vertices)
+        pilha = []
+        for vertice in arvore2:
+            if visitado[self.vertices[vertice]] == "N":
+                pilha.append(vertice)
+                visitado[self.vertices[vertice]] = "A"
+                ciclo = self.verifica_cicloAG(arvore2, vertice, ciclo, visitado, pilha)
+            
+        return ciclo
+    
+    def verifica_cicloAG(self, lista, pai, ciclo, visitado, pilha):
+        """Recebe a árvore e verifica o ciclo."""
+        ultimo = len(pilha)-1
+        i = pilha[ultimo]
+        for j in lista[i]:
+            if visitado[self.vertices[j[0]]] == "N":
+                visitado[self.vertices[j[0]]] = "A"
+                pilha.append(j[0])
+                ciclo = self.verifica_cicloAG(lista, i, ciclo, visitado, pilha)
+            elif j[0] != pai and visitado[self.vertices[i]] == "A":
+                return True
+        visitado[self.vertices[i]] = "V"
+        ultimo = len(pilha)-1
+        pilha.pop(ultimo)
+        return ciclo
+    
     def ArvoreGeradoraMinima (self):
         listaArestas = [] #configuração: (valor, v1, v2)
-        contador = 0
-        for linha in range (len(self.vertices)):
-            for coluna in range (contador, len(self.vertices)):
-                if self.matriz[linha][coluna] != None and linha != coluna:
-                    listaArestas.append ((self.matriz[linha][coluna], linha, coluna))
-            if not self.direcionado:
-                contador = contador+1
+        for vertice in self.lista:
+            for tupla in self.lista[vertice]:
+                if vertice != tupla[0]: #Retira os loops
+                    listaArestas.append ((tupla[1],vertice,tupla[0]))
+                    if not self.direcionado and (tupla[1], tupla[0], vertice) in listaArestas:
+                        listaArestas.remove ((tupla[1],vertice,tupla[0]))
         listaArestas.sort()
-        print (listaArestas)
 
-
-        arvore = [[None]*len(self.vertices) for _ in range(len(self.vertices))]
+        arvore = {}
+        for vertice in self.lista:
+            arvore[vertice] = []
         
         quantidade = 0
         cont = 0
@@ -268,35 +305,46 @@ quanto a lista de adjacência."""
         while quantidade < len(self.vertices)-1 and cont < qtArestas:
             cont = cont+1
             aresta = listaArestas.pop(0)
-
-            arvore[aresta[1]][aresta[2]] = aresta[0] #verificar ciclos
+            
+            arvore[aresta[1]].append((aresta[2], aresta[0])) 
             if not self.direcionado:
-                arvore[aresta[2]][aresta[1]] = aresta[0]
-            quantidade = quantidade+1
+                arvore[aresta[2]].append((aresta[1], aresta[0]))
+            
+            if self.CicloArvoreGeradora(arvore):
+                arvore[aresta[1]].remove((aresta[2], aresta[0]))
+                if not self.direcionado:
+                    arvore[aresta[2]].remove((aresta[1], aresta[0]))
+            else:
+                quantidade = quantidade+1
+            
             for i in listaArestas:
-                if i[1] == aresta[1] and i[2] == aresta[2]:
+                if i[1] == aresta[1] and i[2] == aresta[2]: #Retira arestas paralelas
                     listaArestas.remove(i)
 
+        for i in arvore:
+            arvore[i].sort()
 
-    def dfs(self, v, visitado):
-        visitado[v] = True
+        return arvore
 
-        for i in range(len(self.vertices)):
-            if self.matriz[v][i] and not visitado[i]:
-                self.dfs(i, visitado)
 
-    def verifica_ciclo(self, v, visitado, pai):
-        visitado[self.vertices[v]] = True
-
-        for i in self.vertices.keys():
-            if self.matriz[self.vertices[v]][self.vertices[i]]:
-                if visitado[self.vertices[i]] == False:
-                    if self.verifica_ciclo(i, visitado, v):
-                        return True
-                elif i != pai:
-                    return True
-
-        return False
+    def verifica_ciclo(self, pai, ciclo, visitado, pilha):
+        """Usa DFS para verificação de ciclo. Se chegar em um vértice que já foi encontrado, mas não explorado, há um ciclo.""" 
+        ultimo = len(pilha)-1
+        i = pilha[ultimo]
+        for j in self.lista[i]:
+            if visitado[self.vertices[j[0]]] == "N":
+                visitado[self.vertices[j[0]]] = "A"
+                pilha.append(j[0])
+                ciclo = self.verifica_ciclo(i, ciclo, visitado, pilha)
+            elif visitado[self.vertices[j[0]]] == "A" and j[0] != pai:
+                print ("I", i, "PROXIMO", j[0])
+                return True
+            elif self.direcionado and visitado[self.vertices[j[0]]] == "A": #Se for direcionado e tiver um caminho para o pai, há um ciclo.
+                return True
+        visitado[self.vertices[i]] = "V"
+        ultimo = len(pilha)-1
+        pilha.pop(ultimo)
+        return ciclo
 
 
     def VerificacoesGrafo(self, opcaoVerificacao):
@@ -372,16 +420,23 @@ quanto a lista de adjacência."""
             print("Ainda não implementado. (hamiltoniano)")
 
         if opcaoVerificacao == "vii": #tem ciclos?
-            visitado = [False] * len(self.vertices)
+            """Verifica o ciclo a partir do primeiro vértice"""
+            print (self.lista)
+            for i in range (len(self.vertices)): #Verifica loop
+                if self.matriz[i][i] != None:
+                    return("O grafo possui ciclos.")
             ciclo = False
-            for i in self.vertices.keys():
-                if visitado[self.vertices[i]] == False:
-                    if self.verifica_ciclo(i, visitado, None) == True:
-                        ciclo = True
+            visitado = ["N"]*len(self.vertices)
+            pilha = []
+            for vertice in self.lista:
+                if visitado[self.vertices[vertice]] == "N":
+                    pilha.append(vertice)
+                    visitado[self.vertices[vertice]] = "A"
+                    ciclo = self.verifica_ciclo(vertice, ciclo, visitado, pilha)
             if ciclo:
-                print("O grafo possui ciclos.")
+                return("O grafo possui ciclos.")
             else:
-                print("O grafo não possui ciclos.")
+                return("O grafo não possui ciclos.")
 
         if opcaoVerificacao == "viii": #planar?
             print("Ainda não implementado. (planar)")
@@ -443,14 +498,33 @@ class PropriedadesIncompativeis(Exception):
 if __name__ == "__main__":
     v = ["A","B","C", "D", "E", "F", "G"]
     
-    a = [("D","A",4), ("D","E",2), ("A","C",3), ("A","E",4), ("E","C",4),
-         ("E","G",5), ("C","F",5), ("C","B",2), ("C","G",5), ("B","C",6),
-         ("B","F",2), ("G","F",5)]
-    
-    aA = [("A","B",6)]
+    a = [("A","B",1), ("B","C",3), ("B","H",2), ("D","G",6), ("D","E",9), ("E","F",5), ("G","C",4), ("G","F",4), ("F","D",4), ("A","H",1)]
 
-    g = Grafo(v, a, True", True)
-    
-    print(g.MenorCaminho("D", "C"))
+    g = Grafo(v, a, True, True)
+    #print(g.CompConexos())
 
-    #print("=== + FIM + ===")
+    #arvore_dfs = g.ArvoreDFS('A')
+    #print("ARVORE DFS: ")
+    #print(arvore_dfs)
+    #print(g.OrdemTopologica())
+    print(g.ArvoreGeradoraMinima())
+    
+
+    '''contTeste=0
+    while contTeste<8:
+        print("Insira a opção referente a verificação que deseja fazer: ")
+        print("i. qtd de vertices ")
+        print("ii. qtd de arestas ")
+        print("iii. conexo? ")
+        print("iv. bipartido? ")
+        print("v. euleriano? ")
+        print("vi. hamiltoniano? ")
+        print("vii. ciclico? ")
+        print("viii. planar? ")
+        opcaoVerificacao = input()
+        g.VerificacoesGrafo(opcaoVerificacao)
+        contTeste+=1'''
+    
+    #print(g.VerificacoesGrafo("vii"))
+
+    print("=== + FIM + ===")
