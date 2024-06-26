@@ -499,6 +499,40 @@ quanto a lista de adjacência."""
             (*_, traceback) = distancias[traceback]
 
         return caminho
+
+    def CaminhoHamiltoniano(self, inicio, direcionado=True):
+        """
+        Verifica se existe um caminho Hamiltoniano a partir de um vértice inicial.
+
+        Parâmetros:
+        - inicio: indice do vértice inicial para começar a busca do caminho hamiltoniano.
+        - direcionado: booleano que indica se o grafo é direcionado ou não.
+
+        Retorna:
+        - Uma lista com o caminho hamiltoniano se existir. Se não existir retorna None.
+        """
+        caminho = [inicio]
+        visitados = [False] * len(self.vertices)
+        visitados[inicio] = True
+
+        pilha = [(inicio, caminho[:], visitados[:])]  #Pilha que usa copias para evitar alteração inesperada.
+
+        while pilha:
+            v, caminho_atual, visitados_atuais = pilha.pop()
+
+            #Se todos os vértices foram visitados, retorna o caminho hamiltoniano encontrado
+            if len(caminho_atual) == len(self.vertices):
+                return caminho_atual
+
+            #Itera sobre os vértices adjacentes ao vértice atual
+            for i in range(len(self.vertices)):
+                if (self.matriz[v][i] is not None or (not direcionado and self.matriz[i][v] is not None)) and not visitados_atuais[i]:
+                    novo_caminho = caminho_atual + [i]
+                    novos_visitados = visitados_atuais[:]
+                    novos_visitados[i] = True
+                    pilha.append((i, novo_caminho, novos_visitados))
+
+        return None  #Retorna None se nenhum caminho hamiltoniano foi encontrado
         
 
     @staticmethod
@@ -521,19 +555,30 @@ class PropriedadesIncompativeis(Exception):
         super().__init__(message)
         
 if __name__ == "__main__":
-    v = ["A","B","C", "D", "E", "F", "G", "H"]
-    
-    a = [("A","B",1), ("B","C",3), ("D","A",4), ("C","D",1), ("F","E",5), ("G","F",4), ("E","G",4), ("F","H",3)]
+    v = ["A", "B", "C", "D", "E"]
+    a = [("A", "B", 1), ("B", "D", 1), ("D", "C", 1), ("C", "E", 1), ("E", "A", 1)]
+
+    #v = ["A","B","C", "D", "E", "F", "G", "H"]
+    #a = [("A","B",1), ("B","C",3), ("D","A",4), ("C","D",1), ("F","E",5), ("G","F",4), ("E","G",4), ("F","H",3)]
 
     g = Grafo(v, a, True, True)
     #print(g.CompConexos())
+
+    inicio = v.index("A")
+    caminho_hamiltoniano = g.caminhoHamiltoniano(inicio, False)  #O caminho hamiltoniano muda ao passar o parametro 'direcionado' como true ou false.
+
+    if caminho_hamiltoniano:
+        caminho_hamiltoniano = [v[i] for i in caminho_hamiltoniano]
+        print(f"Caminho Hamiltoniano encontrado: {caminho_hamiltoniano}")
+    else:
+        print("Nenhum caminho Hamiltoniano encontrado.")
 
     #arvore_dfs = g.ArvoreDFS('A')
     #print("ARVORE DFS: ")
     #print(arvore_dfs)
     #print(g.OrdemTopologica())
     #print(g.ArvoreGeradoraMinima())
-    print(g.ArestasPonte())    
+    #print(g.ArestasPonte())
 
     '''contTeste=0
     while contTeste<8:
