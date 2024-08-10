@@ -62,7 +62,7 @@ os pesos de cada vértice, e o grafo é não ponderado, o filtro pode normalizar
         return listaAdj
     
     def __str__(self):
-        """Método chamado implicitamente pelo interpretador. 
+        """Método chamado implicitamente pelo interpretador ou explicitamente pelo usuário. 
 Não recebe nada e retorna uma string que representa tanto a matriz
 quanto a lista de adjacência."""
         string = "=== MATRIZ ===\n"
@@ -555,47 +555,13 @@ class PropriedadesIncompativeis(Exception):
         super().__init__(message)
         
 if __name__ == "__main__":
-    v = ["A", "B", "C", "D", "E"]
-    a = [("A", "B", 1), ("B", "D", 1), ("D", "C", 1), ("C", "E", 1), ("E", "A", 1)]
-
-    #v = ["A","B","C", "D", "E", "F", "G", "H"]
-    #a = [("A","B",1), ("B","C",3), ("D","A",4), ("C","D",1), ("F","E",5), ("G","F",4), ("E","G",4), ("F","H",3)]
-
-    g = Grafo(v, a, True, True)
-    #print(g.CompConexos())
-
-    inicio = v.index("A")
-    caminho_hamiltoniano = g.caminhoHamiltoniano(inicio, False)  #O caminho hamiltoniano muda ao passar o parametro 'direcionado' como true ou false.
-
-    if caminho_hamiltoniano:
-        caminho_hamiltoniano = [v[i] for i in caminho_hamiltoniano]
-        print(f"Caminho Hamiltoniano encontrado: {caminho_hamiltoniano}")
-    else:
-        print("Nenhum caminho Hamiltoniano encontrado.")
-
-    #arvore_dfs = g.ArvoreDFS('A')
-    #print("ARVORE DFS: ")
-    #print(arvore_dfs)
-    #print(g.OrdemTopologica())
-    #print(g.ArvoreGeradoraMinima())
-    #print(g.ArestasPonte())
-
-    '''contTeste=0
-    while contTeste<8:
-        print("Insira a opção referente a verificação que deseja fazer: ")
-        print("i. qtd de vertices ")
-        print("ii. qtd de arestas ")
-        print("iii. conexo? ")
-        print("iv. bipartido? ")
-        print("v. euleriano? ")
-        print("vi. hamiltoniano? ")
-        print("vii. ciclico? ")
-        print("viii. planar? ")
-        opcaoVerificacao = input()
-        g.VerificacoesGrafo(opcaoVerificacao)
-        contTeste+=1'''
+    v = ["A","B","C", "D", "E", "F", "G", "H", "I"]
     
-    
-    #print(g.VerificacoesGrafo("vii"))
+    a = [("A","B",2), ("B","D",1), ("D","I",3), ("A","C",2), ("C","E",6),
+         ("C","G",9), ("C","F",5), ("F","G",4), ("F","H",4), ("H","I",4)]
+
+    g = Grafo(v, a, True, False)
+    print(g)
+    print(g.ArvoreDFS("A"))
 
     print("=== + FIM + ===")
