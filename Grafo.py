@@ -1,99 +1,96 @@
 class Grafo:
-    def __init__(self, vertices=[], arestas=[], direcionado=True, ponderado=False):
-        """Construtor da classe"""
-        self.vertices = {}
-        for i, vertice in enumerate(vertices):
-            self.vertices[vertice] = i
+    def __init__(self, vertices=[], arestas=[], direcionado=True):
 
-        self.direcionado = direcionado
-        self.ponderado = ponderado
+        """Construtor da classe Grafo"""
+
+        self.vertices = vertices
+        self.direcionado = False if direcionado == "nao direcionado" else False
         self.lista = {}
 
-        ### GRAFO EM MATRIZ
+        # Funcionamento da população dos dados
+        #    id = id da aresta atual
+        #    de = vértice de onde parte a aresta
+        #  para = vértice destino da aresta
+        #  peso = valor do peso da aresta
 
-        self.matriz = [[None]*len(self.vertices) for _ in range(len(self.vertices))]     
+        ### GRAFO EM MATRIZ ==========================
+        nmr_vertices = len(self.vertices)
+        self.matriz = [[None for _ in range(nmr_vertices)] for _ in range(nmr_vertices)]
+        self.arestas = [[None for _ in range(nmr_vertices)] for _ in range(nmr_vertices)]
 
-        filtro = None
-        if len(arestas) > 0:
-            if (self.ponderado):
-                if len(arestas[0]) < 3: raise IndexError("Não há dados para ponderar as arestas")
-                filtro = self.__MATRIZ_tupla_ponderada
-            else:
-                filtro = self.__MATRIZ_tupla_naoPonderada
-
-        v = self.vertices
         if self.direcionado :
-            for aresta in arestas:
-                self.matriz[v[aresta[0]]][v[aresta[1]]] = filtro(aresta)
+            for id, de, para, peso in arestas:
+                self.matriz [de][para] = peso
+                self.arestas[de][para] = id
+
         else:
-            for aresta in arestas:
-                self.matriz[v[aresta[0]]][v[aresta[1]]] = filtro(aresta)
-                self.matriz[v[aresta[1]]][v[aresta[0]]] = filtro(aresta)
+            for id, de, para, peso in arestas:
+                self.matriz [de][para] = peso
+                self.matriz [para][de] = peso
+                self.arestas[de][para] = id
+                self.arestas[para][de] = id
+        ### FIM DA INICIAÇÃO EM MATRIZ ===============
 
-        ### GRAFO EM LISTA 
-        filtroPond = None
-
-        if len(arestas) > 0:
-            if (self.ponderado):
-                if len(arestas[0]) < 3: raise IndexError("Não há dados para ponderar as arestas")
-                filtroPond = self.__LISTA_tupla_Ponderada
-            else:
-                filtroPond = self.__LISTA_tupla_naoPonderada
-
+        ### GRAFO EM LISTA ===========================
+        for v in self.vertices:
+            self.lista[v] = []
 
         if self.direcionado:
-            for v in self.vertices:
-                self.lista[v] = self.__tuplas_paraDirecionado(v, arestas, filtroPond)
+            for id, de, para, peso in arestas:
+                self.lista[de].append((para, peso))
         else:
-            for v in self.vertices:
-                self.lista[v] = []
+            for id, de, para, peso in arestas:
+                self.lista[de].append((para, peso))
+                if not (de == para):
+                    self.lista[para].append((de, peso))
 
-            for aresta in arestas:
-                self.lista[aresta[0]].append(filtroPond(aresta))
-                if not (aresta[0] == aresta[1]):
-                    self.lista[aresta[1]].append(filtroPond((aresta[1], aresta[0], aresta[2])))
-
-    def __tuplas_paraDirecionado(self, vertice, arestas, filtro):
-        """Organiza uma lista de tuplas de um único vértice. O argumento 'filtro'
-é usado como forma de padronizar a ponderação dos vértices. Ex.: se o arquivo fornece
-os pesos de cada vértice, e o grafo é não ponderado, o filtro pode normalizar esse valor para 'None'."""
-        listaAdj = [filtro(aresta) for aresta in arestas if aresta[0] == vertice]
-
-        return listaAdj
+        ### FIM DA INICIAÇÃO EM LISTA ================
     
     def __str__(self):
         """Método chamado implicitamente pelo interpretador ou explicitamente pelo usuário. 
 Não recebe nada e retorna uma string que representa tanto a matriz
 quanto a lista de adjacência."""
-        string = "=== MATRIZ ===\n"
+        string = "==== MATRIZ ====\n"
         for v in self.vertices:
             i = self.vertices[v]
             for j in self.matriz[i]:
                 string += "{:>4}".format(str(j)) + ' '
             string += '\n'
-        string += "\n=== LISTA ===\n"
+        
+        string = "=== ARESTAS ===\n"
+        for v in self.vertices:
+            i = self.vertices[v]
+            for j in self.matriz[i]:
+                string += "{:>4}".format(str(j)) + ' '
+            string += '\n'
+
+        string += "\n==== LISTA ====\n"
         for key in self.lista:
             string += f"{key}: {str(self.lista[key])}\n"
             
         return string
     
-
-    def AdicionarArestas(self, v1, v2, valor=0):
+    def AdicionarArestas(self, id, v1, v2, valor=0):
         """Adiciona a aresta a partir de dois vértices recebidos e um valor. Não retorna nada."""
-        self.matriz[self.vertices[v1]][self.vertices[v2]] = valor
+        self.matriz[v1][v2] = valor
         self.lista[v1].append((v2, valor))
+        self.arestas[v1][v2] = id
 
         if not self.direcionado:
-            self.matriz[self.vertices[v2]][self.vertices[v1]] = valor
+            self.matriz[v2][v1] = valor
             self.lista[v2].append((v1, valor))
+            self.arestas[v2][v1] = id
 
     def RemoverArestas(self, v1, v2):
         """Recebe os vértices v1 e v2 que correspondem a uma aresta e a remove. Não retorna nada."""
-        if v1 not  in self.lista or v2 not  in self.lista:
+        if v1 not in self.lista or v2 not in self.lista:
             raise IndexError("Os vértices fornecidos não existem")
-        self.matriz[self.vertices[v1]][self.vertices[v2]] = None
+        
+        self.matriz [v1][v2] = None
+        self.arestas[v1][v2] = None
         if not self.direcionado:
-            self.matriz[self.vertices[v2]][self.vertices[v1]] = None
+            self.matriz [v2][v1] = None
+            self.arestas[v2][v1] = None
         
         for tupla in self.lista[v1]:
             if tupla[0] == v2:
@@ -201,7 +198,6 @@ quanto a lista de adjacência."""
 
         return arvore
 
-
     def OrdemTopologica(self):
         """Argoritmo de Kahn. Retorna uma possibilidade de ordem de execução"""
         if self.VerificacoesGrafo("vii") == "O grafo possui ciclos.":
@@ -225,7 +221,6 @@ quanto a lista de adjacência."""
                     grau[i] = None
 
         return listaExecucao
-    
 
     def CompConexos(self):
         """Retorna componentes conexos como listas de vértices"""
@@ -306,7 +301,6 @@ quanto a lista de adjacência."""
 
         return arvore
 
-
     def verifica_ciclo(self, pai, ciclo, visitado, pilha, lista, direcionado):
         """Usa DFS para verificação de ciclo. Se chegar em um vértice que já foi encontrado, mas não explorado, há um ciclo.""" 
         ultimo = len(pilha)-1
@@ -369,8 +363,6 @@ quanto a lista de adjacência."""
                 self.Tarjan(grafo2, vertice, visitado, low, tempoD, arestasPonte, tempo, vertice, (vertice,0))
 
         return arestasPonte
-
-
 
     def VerificacoesGrafo(self, opcaoVerificacao):
         """Realiza diferentes verificações no grafo com base na opçao selecionada."""
@@ -533,35 +525,34 @@ quanto a lista de adjacência."""
                     pilha.append((i, novo_caminho, novos_visitados))
 
         return None  #Retorna None se nenhum caminho hamiltoniano foi encontrado
-        
-
-    @staticmethod
-    def __LISTA_tupla_naoPonderada(tupla):
-        """Recebe uma tupla (v1, v2, valor) que será formatada 
-em uma tupla do tipo aresta não ponderada."""
-        return (tupla[1], 0)
-    
-    def __LISTA_tupla_Ponderada(self, tupla):
-        """Recebe uma tupla (v1, v2, valor) que será formatada 
-em uma tupla do tipo aresta não ponderada."""
-        return (tupla[1], tupla[2])
-    
-    # As funções abaixo tem o mesmo objetivo das acima, com a diferença que 
-    def __MATRIZ_tupla_ponderada(self, tupla): return (tupla[2])
-    def __MATRIZ_tupla_naoPonderada(self, _): return 0
 
 class PropriedadesIncompativeis(Exception):
     def __init__(self, message):
         super().__init__(message)
         
 if __name__ == "__main__":
-    v = ["A","B","C", "D", "E", "F", "G", "H", "I"]
-    
-    a = [("A","B",2), ("B","D",1), ("D","I",3), ("A","C",2), ("C","E",6),
-         ("C","G",9), ("C","F",5), ("F","G",4), ("F","H",4), ("H","I",4)]
+    entradas = list(map(int, input().split()))
+    direc = input()
+    v = [i for i in range(entradas[0])]
 
-    g = Grafo(v, a, True, False)
+    g = Grafo(v, direcionado=direc)
+    for i in range(entradas[1]):
+        entradas = list(map(int, input().split()))
+        g.AdicionarArestas(entradas[0], entradas[1], entradas[2], entradas[3])
+    
     print(g)
-    print(g.ArvoreDFS("A"))
+
+    g.RemoverArestas(entradas[1], entradas[2])
+
+    print(g)
 
     print("=== + FIM + ===")
+
+"""
+4 4
+nao_direcionado
+0 0 1 1
+1 1 2 1
+2 1 3 1
+3 2 3 1 
+"""
