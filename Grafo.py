@@ -135,38 +135,26 @@ quanto a lista de adjacência."""
                 if self.vertices[v] > i:
                     self.vertices[v] -= 1
 
-    def ArvoreBFS(self, inicial):
-        """Recebe um vértice inicial e realiza a busca em largura a partir dele. Retorna a árvore de busca 
-        em largura na forma de lista."""
-        arvore = {}
+    def ArvoreBFS(self):
+        """Realiza a busca em largura a partir do vértice 0. Retorna os identificadores das arestas."""
+        listaArestas = []
         visitado = ["N"]*len(self.vertices) #Lista de todos os vértices, que informa o estado atual de cada vértice.
         #"N": ainda não foi encontrado.
         #"A": foi encontrado, mas não foi explorado.
         #"V": foi explorado.
-        fila = [inicial]
-        visitado[self.vertices[fila[0]]] = "A"
+        fila = [0]
+        visitado[0] = "A"
 
         while fila:
-            while fila:
-                i = fila.pop(0)
-                arvore[i] = []
-                for j in self.lista[i]:
-                    if visitado[self.vertices[j[0]]] == "N":
-                        visitado[self.vertices[j[0]]] = "A"
-                        fila.append(j[0])
-                        arvore[i].append(j)
-                visitado[self.vertices[i]] = "V"
+            i = fila.pop(0)
+            for j in self.lista[i]:
+                if visitado[self.vertices[j[0]]] == "N":
+                    visitado[self.vertices[j[0]]] = "A"
+                    fila.append(j[0])
+                    listaArestas.append(self.arestas[i][j[0]])
+            visitado[i] = "V"
             
-            #Verifica se há algum vértice que não está conectado aos já explorados.
-            cont = 0
-            parar = False
-            for vertice in arvore:
-                if visitado[cont] == "N" and not parar:
-                    fila.append(vertice)
-                    visitado[cont] = "A"
-                    parar = True
-                cont = cont+1
-        return arvore
+        return listaArestas
 
     def ArvoreDFS(self, inicial):
         """Faz uma busca em profundidade a partir de um vértice inicial e retorna uma arvore DFS."""
@@ -243,38 +231,37 @@ quanto a lista de adjacência."""
                 
         return componentes
     
-    def CicloArvoreGeradora(self, lista):
-        """Transforma o grafo direcionado em não direcionado e verifica o ciclo."""
-        arvore2 = {}
-        for vertice in lista:
-            arvore2[vertice] = []
-        for vertice in lista:
-            for tupla in lista[vertice]:
-                arvore2[vertice].append((tupla[0], tupla[1]))
-                if self.direcionado:
-                    arvore2[tupla[0]].append((vertice, tupla[1]))
+    def CicloArvoreGeradora(self, arvore):
         ciclo = False
         visitado = ["N"]*len(self.vertices)
         pilha = []
-        for vertice in arvore2:
-            if visitado[self.vertices[vertice]] == "N":
+        for vertice in arvore:
+            if visitado[vertice] == "N":
                 pilha.append(vertice)
-                visitado[self.vertices[vertice]] = "A"
-                ciclo = self.verifica_ciclo(vertice, ciclo, visitado, pilha, arvore2, 0)
+                visitado[vertice] = "A"
+                ciclo = self.verifica_ciclo(vertice, ciclo, visitado, pilha, arvore, 0)
             
         return ciclo
     
     def ArvoreGeradoraMinima (self):
+        ehPond = False
+        for i in range(len(self.matriz)):
+            for j in range(len(self.matriz[i])):
+                if self.matriz[i][j] != 1 and self.matriz[i][j] != None:
+                    ehPond = True
+        
+        if ehPond == False:
+            return -1
+
         listaArestas = [] #configuração: (valor, v1, v2)
-        for vertice in self.lista:
-            for tupla in self.lista[vertice]:
-                if vertice != tupla[0]: #Retira os loops
-                    listaArestas.append ((tupla[1],vertice,tupla[0]))
-                    if not self.direcionado and (tupla[1], tupla[0], vertice) in listaArestas:
-                        listaArestas.remove ((tupla[1],vertice,tupla[0]))
+        for i in range(len(self.matriz)):
+            for j in range(len(self.matriz[i])):
+                if i < j and self.matriz[i][j] != None: #Retira os loops e arestas repetidas
+                    listaArestas.append ((self.matriz[i][j],i,j))
         listaArestas.sort()
 
         arvore = {}
+        listaArestas2 = []
         for vertice in self.lista:
             arvore[vertice] = []
         
@@ -286,53 +273,51 @@ quanto a lista de adjacência."""
             aresta = listaArestas.pop(0)
             
             arvore[aresta[1]].append((aresta[2], aresta[0])) 
-            if not self.direcionado:
-                arvore[aresta[2]].append((aresta[1], aresta[0]))
+            arvore[aresta[2]].append((aresta[1], aresta[0]))
             
             if self.CicloArvoreGeradora(arvore):
                 arvore[aresta[1]].remove((aresta[2], aresta[0]))
-                if not self.direcionado:
-                    arvore[aresta[2]].remove((aresta[1], aresta[0]))
+                arvore[aresta[2]].remove((aresta[1], aresta[0]))
             else:
                 quantidade = quantidade+1
+                listaArestas2.append(self.arestas[aresta[1]][aresta[2]])
 
-        for i in arvore:
-            arvore[i].sort()
+        listaArestas2.sort()
 
-        return arvore
+        return listaArestas2
 
     def verifica_ciclo(self, pai, ciclo, visitado, pilha, lista, direcionado):
         """Usa DFS para verificação de ciclo. Se chegar em um vértice que já foi encontrado, mas não explorado, há um ciclo.""" 
         ultimo = len(pilha)-1
         i = pilha[ultimo]
         for j in lista[i]:
-            if visitado[self.vertices[j[0]]] == "N":
-                visitado[self.vertices[j[0]]] = "A"
+            if visitado[j[0]] == "N":
+                visitado[j[0]] = "A"
                 pilha.append(j[0])
                 ciclo = self.verifica_ciclo(i, ciclo, visitado, pilha, lista, direcionado)
-            elif visitado[self.vertices[j[0]]] == "A" and j[0] != pai:
+            elif visitado[j[0]] == "A" and j[0] != pai:
                 return True
-            elif direcionado and visitado[self.vertices[j[0]]] == "A": #Se for direcionado e tiver um caminho para o pai, há um ciclo.
+            elif direcionado and visitado[j[0]] == "A": #Se for direcionado e tiver um caminho para o pai, há um ciclo.
                 return True
-        visitado[self.vertices[i]] = "V"
+        visitado[i] = "V"
         ultimo = len(pilha)-1
         pilha.pop(ultimo)
         return ciclo
     
     def Tarjan(self, lista, vertice, visitado, low, tempoD, arestasPonte, tempo, pai, aAnterior):
         """Aplica o método de Tarjan para encontrar arestas ponte"""
-        visitado[self.vertices[vertice]] = "A"
-        tempoD[self.vertices[vertice]] = tempo
-        low[self.vertices[vertice]] = tempo
+        visitado[vertice] = "A"
+        tempoD[vertice] = tempo
+        low[vertice] = tempo
         for tupla in lista[vertice]:
-            if visitado[self.vertices[tupla[0]]] == "N":
+            if visitado[tupla[0]] == "N":
                 tempo += 1
                 self.Tarjan(lista, tupla[0], visitado, low, tempoD, arestasPonte, tempo, vertice, tupla)
-                low[self.vertices[vertice]] = min(low[self.vertices[vertice]], low[self.vertices[tupla[0]]])
-                if low[self.vertices[tupla[0]]] > tempoD[self.vertices[vertice]]:
-                    arestasPonte.append((vertice, tupla[0]))
-            elif vertice != tupla[0] and visitado[self.vertices[tupla[0]]] == "A" and (tupla[0] != pai or aAnterior[1] != tupla[1]):
-                low[self.vertices[vertice]] = min(low[self.vertices[vertice]], tempoD[self.vertices[tupla[0]]])
+                low[vertice] = min(low[vertice], low[tupla[0]])
+                if low[tupla[0]] > tempoD[vertice]:
+                    arestasPonte.append(self.arestas[vertice][tupla[0]])
+            elif vertice != tupla[0] and visitado[tupla[0]] == "A" and (tupla[0] != pai or aAnterior[1] != tupla[1]):
+                low[vertice] = min(low[vertice], tempoD[tupla[0]])
 
 
         visitado[self.vertices[vertice]] = "V"
@@ -340,17 +325,16 @@ quanto a lista de adjacência."""
     def ArestasPonte(self):
         """Transforma o grafo direcionado em não direcionado e chama o método de Tarjan para cada vértice"""
         grafo2 = {}
-        for vertice in self.lista:
+        for vertice in self.vertices:
             grafo2[vertice] = []
-        for vertice in self.lista:
+        for vertice in self.vertices:
             for tupla in self.lista[vertice]:
                 grafo2[vertice].append((tupla[0], tupla[1]))
                 if self.direcionado:
                     grafo2[tupla[0]].append((vertice, tupla[1]))
 
-        for tupla in grafo2:
-            grafo2[tupla].sort()
-        print(grafo2)
+        for i in grafo2:
+            grafo2[i].sort()
 
         visitado = ["N"]*len(self.vertices)
         low = [None]*len(self.vertices)
@@ -540,11 +524,12 @@ if __name__ == "__main__":
         entradas = list(map(int, input().split()))
         g.AdicionarArestas(entradas[0], entradas[1], entradas[2], entradas[3])
     
-    print(g)
+    print(g.ArestasPonte())
+    #print(g)
 
-    g.RemoverArestas(entradas[1], entradas[2])
+    #g.RemoverArestas(entradas[1], entradas[2])
 
-    print(g)
+    #print(g)
 
     print("=== + FIM + ===")
 
