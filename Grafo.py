@@ -4,7 +4,7 @@ class Grafo:
         """Construtor da classe Grafo"""
 
         self.vertices = vertices
-        self.direcionado = False if direcionado == "nao direcionado" else False
+        self.direcionado = False if direcionado == "nao_direcionado" else True
         self.lista = {}
 
         # Funcionamento da população dos dados
@@ -154,6 +154,7 @@ quanto a lista de adjacência."""
                     listaArestas.append(self.arestas[i][j[0]])
             visitado[i] = "V"
             
+        listaArestas.sort()
         return listaArestas
 
     def ArvoreDFS(self, inicial):
@@ -509,6 +510,31 @@ quanto a lista de adjacência."""
                     pilha.append((i, novo_caminho, novos_visitados))
 
         return None  #Retorna None se nenhum caminho hamiltoniano foi encontrado
+    
+    def FechoTransitivo(self):
+        if not self.direcionado:
+            return -1
+        
+        listaVertices = [0]
+        visitado = ["N"]*len(self.vertices) #Lista de todos os vértices, que informa o estado atual de cada vértice.
+        #"N": ainda não foi encontrado.
+        #"A": foi encontrado, mas não foi explorado.
+        #"V": foi explorado.
+        fila = [0]
+        visitado[0] = "A"
+
+        while fila:
+            i = fila.pop(0)
+            for j in self.lista[i]:
+                if visitado[self.vertices[j[0]]] == "N":
+                    visitado[self.vertices[j[0]]] = "A"
+                    fila.append(j[0])
+                    listaVertices.append(j[0])
+            visitado[i] = "V"
+
+        listaVertices.sort()
+            
+        return listaVertices
 
 class PropriedadesIncompativeis(Exception):
     def __init__(self, message):
@@ -524,7 +550,7 @@ if __name__ == "__main__":
         entradas = list(map(int, input().split()))
         g.AdicionarArestas(entradas[0], entradas[1], entradas[2], entradas[3])
     
-    print(g.ArestasPonte())
+    print(g.FechoTransitivo())
     #print(g)
 
     #g.RemoverArestas(entradas[1], entradas[2])
