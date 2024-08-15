@@ -348,49 +348,74 @@ quanto a lista de adjacência."""
         pilha.pop(ultimo)
         return ciclo
     
-    def Tarjan(self, lista, vertice, visitado, low, tempoD, arestasPonte, tempo, pai, aAnterior):
+    def TarjanA(self, vertice, visitado, low, tempoD, pai, arestasPonte, tempo):
         """Aplica o método de Tarjan para encontrar arestas ponte"""
         visitado[vertice] = "A"
         tempoD[vertice] = tempo
         low[vertice] = tempo
-        for tupla in lista[vertice]:
-            if visitado[tupla[0]] == "N":
+        for tupla in self.lista[vertice]:
+            u = tupla[0]
+            if visitado[u] == "N":
+                print (vertice, pai)
+                pai[u] = vertice
                 tempo += 1
-                self.Tarjan(lista, tupla[0], visitado, low, tempoD, arestasPonte, tempo, vertice, tupla)
-                low[vertice] = min(low[vertice], low[tupla[0]])
-                if low[tupla[0]] > tempoD[vertice]:
-                    arestasPonte.append(self.arestas[vertice][tupla[0]])
-            elif vertice != tupla[0] and visitado[tupla[0]] == "A" and (tupla[0] != pai or aAnterior[1] != tupla[1]):
-                low[vertice] = min(low[vertice], tempoD[tupla[0]])
+                self.TarjanA(u, visitado, low, tempoD, pai, arestasPonte, tempo)
+                low[vertice] = min(low[vertice], low[u])
+                if low[u] > tempoD[vertice]:
+                    arestasPonte.append(self.arestas[vertice][u])
+            elif visitado[u] == "A" and u != pai[vertice]:
+                low[vertice] = min(low[vertice], tempoD[u])
 
+        visitado[vertice] = "V"
 
-        visitado[self.vertices[vertice]] = "V"
+    def TarjanV(self, vertice, visitado, low, tempoD, pai, verticesArtic, tempo):
+        """Aplica o método de Tarjan para encontrar arestas ponte"""
+        visitado[vertice] = "A"
+        tempoD[vertice] = tempo
+        low[vertice] = tempo
+        for tupla in self.lista[vertice]:
+            u = tupla[0]
+            if visitado[u] == "N":
+                print (vertice, pai)
+                pai[u] = vertice
+                tempo += 1
+                self.TarjanA(u, visitado, low, tempoD, pai, verticesArtic, tempo)
+                #low[vertice] = min(low[vertice], low[u])
+                if low[u] >= tempoD[vertice]:
+                    verticesArtic.append(vertice)
+            elif visitado[u] == "A" and u != pai[vertice]:
+                low[vertice] = min(low[vertice], tempoD[u])
+
+        visitado[vertice] = "V"
     
-    def ArestasPonte(self):
-        """Transforma o grafo direcionado em não direcionado e chama o método de Tarjan para cada vértice"""
-        grafo2 = {}
-        for vertice in self.vertices:
-            grafo2[vertice] = []
-        for vertice in self.vertices:
-            for tupla in self.lista[vertice]:
-                grafo2[vertice].append((tupla[0], tupla[1]))
-                if self.direcionado:
-                    grafo2[tupla[0]].append((vertice, tupla[1]))
-
-        for i in grafo2:
-            grafo2[i].sort()
-
+    def Cortes(self, id):
+        if self.direcionado:
+            return -1
+        
         visitado = ["N"]*len(self.vertices)
         low = [None]*len(self.vertices)
         tempoD = [None]*len(self.vertices)
-        arestasPonte = []
+        pai = [None]*len(self.vertices)
         tempo = 1
 
-        for vertice in self.vertices:
-            if visitado[self.vertices[vertice]] == "N":
-                self.Tarjan(grafo2, vertice, visitado, low, tempoD, arestasPonte, tempo, vertice, (vertice,0))
+        if id == 1:
+            arestasPonte = []
+            for vertice in self.vertices:
+                if visitado[self.vertices[vertice]] == "N":
+                    self.TarjanA(vertice, visitado, low, tempoD, pai, arestasPonte, tempo)
 
-        return arestasPonte
+            arestasPonte.sort()
+            return arestasPonte
+        
+        if id == 2:
+            verticesArtic = []
+            for vertice in self.vertices:
+                if visitado[self.vertices[vertice]] == "N":
+                    self.TarjanV(vertice, visitado, low, tempoD, pai, verticesArtic, tempo)
+
+            verticesArtic.sort()
+            return verticesArtic
+
 
     def VerificacoesGrafo(self, opcaoVerificacao):
         """Realiza diferentes verificações no grafo com base na opçao selecionada."""
@@ -663,6 +688,7 @@ class PropriedadesIncompativeis(Exception):
         super().__init__(message)
         
 if __name__ == "__main__":
+    funcoes = list(map(int, input().split()))
     entradas = list(map(int, input().split()))
     direc = input()
     v = [i for i in range(entradas[0])]
@@ -672,7 +698,63 @@ if __name__ == "__main__":
         entradas = list(map(int, input().split()))
         g.AdicionarArestas(entradas[0], entradas[1], entradas[2], entradas[3])
     
-    print(g.FechoTransitivo())
+    for i in funcoes:
+        if i == 0:
+            print('IMPLEMENTAR')
+        elif i == 1:
+            print('IMPLEMENTAR')
+        elif i == 2:
+            print('IMPLEMENTAR')
+        elif i == 3:
+            print('IMPLEMENTAR')
+        elif i == 4:
+            print('IMPLEMENTAR')
+        elif i == 5:
+            print('IMPLEMENTAR')
+        elif i == 6:
+            vertices = g.Cortes(2)
+            for j in range (len(vertices)):
+                if j == len(vertices)-1:
+                    print (vertices[j])
+                else:
+                    print (vertices[j], end=' ')
+        elif i == 7:
+            arestas = g.Cortes(1)
+            for j in range (len(arestas)):
+                if j == len(arestas)-1:
+                    print (arestas[j])
+                else:
+                    print (arestas[j], end=' ')
+        elif i == 8:
+            print('IMPLEMENTAR')
+        elif i == 9:
+            arvore = g.ArvoreBFS()
+            for j in range (len(arvore)):
+                if j == len(arvore)-1:
+                    print (arvore[j])
+                else:
+                    print (arvore[j], end=' ')
+        elif i == 10:
+            print (g.ArvoreGeradoraMinima())
+        elif i == 11:
+            ordem = g.OrdemTopologica()
+            for j in range (len(ordem)):
+                if j == len(ordem)-1:
+                    print (ordem[j])
+                else:
+                    print (ordem[j], end=' ')
+        elif i == 12:
+            print ('IMPLEMENTAR')
+        elif i == 13:
+            print ('IMPLEMENTAR')
+        elif i == 14:
+            fecho = g.FechoTransitivo()
+            for j in range (len(fecho)):
+                if j == len(fecho)-1:
+                    print (fecho[j])
+                else:
+                    print (fecho[j], end=' ')
+
 
     print("=== + FIM + ===")
 
