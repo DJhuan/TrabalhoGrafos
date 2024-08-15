@@ -268,14 +268,14 @@ quanto a lista de adjacência."""
 
     def CicloArvoreGeradora(self, lista):
         """Transforma o grafo direcionado em não direcionado e verifica o ciclo."""
-        arvore2 = {}
+        arvore = {}
         for vertice in lista:
-            arvore2[vertice] = []
+            arvore[vertice] = []
         for vertice in lista:
             for tupla in lista[vertice]:
-                arvore2[vertice].append((tupla[0], tupla[1]))
+                arvore[vertice].append((tupla[0], tupla[1]))
                 if self.direcionado:
-                    arvore2[tupla[0]].append((vertice, tupla[1]))
+                    arvore[tupla[0]].append((vertice, tupla[1]))
         ciclo = False
         visitado = ["N"]*len(self.vertices)
         pilha = []
@@ -579,6 +579,7 @@ quanto a lista de adjacência."""
         listaVertices.sort()
             
         return listaVertices
+    
     def _dfs(self, v_ini, tempo=1, tempos=[], visitados=set()):
         a_explorar = [v_ini]
         retornos = []
@@ -672,13 +673,6 @@ if __name__ == "__main__":
         g.AdicionarArestas(entradas[0], entradas[1], entradas[2], entradas[3])
     
     print(g.FechoTransitivo())
-    #print(g)
-
-    #g.RemoverArestas(entradas[1], entradas[2])
-
-    #print(g)
-    listaDeComp = g.CompFortementeCnx()
-    print(listaDeComp)
 
     print("=== + FIM + ===")
 
