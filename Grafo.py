@@ -1,10 +1,12 @@
+import time
+
 class Grafo:
     def __init__(self, vertices=[], arestas=[], direcionado=True):
 
         """Construtor da classe Grafo"""
 
         self.vertices = vertices
-        self.direcionado = False if direcionado == "nao direcionado" else False
+        self.direcionado = False if direcionado == "nao_direcionado" else True
         self.lista = {}
 
         # Funcionamento da população dos dados
@@ -242,7 +244,36 @@ quanto a lista de adjacência."""
                 componentes.append(componente)
                 
         return componentes
-    
+
+    def CompFortementeCnx(self):
+        """Encontra componentes fortemente conexas em um grafo orientado usando o algoritmo de Kosaraju"""
+
+        # Descobre os tempos de fechamento dos vértices
+        tempos_fechamento = self._temporizar()
+
+        # Usando esses tempos, ele faz o mesmo, porém com arestas invertidas
+        self._inverterArcos()
+        # !!! Apesar de rearoveitar a variável abaixo, o seu conteúdo serão as
+        # componentes fortemente conexas !!!
+        tempos_fechamento = self._temporizar(tempos_fechamento)
+
+        # Ao fim, voltamos os arcos para sua orientação original
+        self._inverterArcos()
+
+        # Extrair os vértices das tuplas
+        vertices_conexos = []
+
+        # Para cada componente encontrado
+        # Em cada componente tiremos o vértice segundo elemento da tupla, logo
+        # v[1]
+        # Todos os elementos do mesmo componente serão juntados numa lista e
+        # apresentados em grupos dentro da lista vertices_conexos
+        for componente in tempos_fechamento:
+            vertices_conexos.append(list(map(lambda v: v[1], componente)))
+            
+        return vertices_conexos
+
+
     def CicloArvoreGeradora(self, lista):
         """Transforma o grafo direcionado em não direcionado e verifica o ciclo."""
         arvore2 = {}
@@ -366,6 +397,7 @@ quanto a lista de adjacência."""
 
     def VerificacoesGrafo(self, opcaoVerificacao):
         """Realiza diferentes verificações no grafo com base na opçao selecionada."""
+
 
         if opcaoVerificacao == "i": #quantidade de vertices
             contVertices = len(self.vertices)
@@ -525,6 +557,84 @@ quanto a lista de adjacência."""
                     pilha.append((i, novo_caminho, novos_visitados))
 
         return None  #Retorna None se nenhum caminho hamiltoniano foi encontrado
+    
+    def _dfs(self, v_ini, tempo=1, tempos=[], visitados=set()):
+        a_explorar = [v_ini]
+        retornos = []
+
+        while a_explorar:
+            v_atual = a_explorar[-1]  # Olhe para o vértice no topo da pilha
+            if v_atual not in visitados:
+                visitados.add(v_atual)
+                tempo += 1
+                houve_explorado = False
+
+                for filho in self.lista[v_atual]:
+                    filho = filho[0]
+                    if filho not in visitados:
+                        a_explorar.append(filho)
+                        houve_explorado = True
+
+                if not houve_explorado:
+                    tempos.append((tempo, v_atual))
+                    tempo += 1
+                    retornos.append(a_explorar.pop()) # Remova e processe o vértice atual
+            else:
+                # Se todos os filhos forem visitados, defina o tempo de término
+                tempos.append((tempo, v_atual)) 
+                tempo += 1
+                retornos.append(a_explorar.pop())
+
+        return tempos, tempo, visitados
+    
+    def _temporizar(self, tempo_decresc=[]):
+        # Atribui um tempo de descoberta a cada vértice do grafo usando DFS.
+        # Caso uma lista com tempos tenha sido fornecida, a atribuição dos tempos
+        # será feita na ordem decrescente dos tempos da lista.
+        # Esta especificidade mencionada é utilizada no algoritmo de Kosaraju
+
+        visitados = set()
+        tempo = 1
+        tempos = []
+
+        if not tempo_decresc:
+            for v in self.vertices:
+                if v not in visitados:
+                    tempos, tempo, visitados = self._dfs(v, tempo, tempos, visitados)
+
+        else:
+            for v in reversed(tempo_decresc):
+                v = v[1] # Utiliza somente o vértice da tupla
+                if v not in visitados:
+                    componente, tempo, visitados = self._dfs(v, tempo, [], visitados)
+                    # Aqui, usamos .append pois no fim teremos uma lista de
+                    # componentes fortemente conexos.
+                    tempos.append(componente)
+
+        return tempos
+
+    def _inverterArcos(self):
+        # Semelhante ao transpor uma matriz, este "transpõe" a lista 
+        lista_invertida = {}
+        for v in self.lista.keys():
+            lista_invertida[v] = []
+
+        for v in self.lista.keys():
+            for filhos in self.lista[v]:
+                lista_invertida[filhos[0]].append((v, filhos[1]))
+        
+        self.lista = lista_invertida
+
+    @staticmethod
+    def conexosParaString(listasDeConexos):
+        """Transforma uma lista de componentes conexos em uma grande string paresentável ao usuário"""
+        saida = ""
+        for cmpsConexos in listasDeConexos:
+            for vertice in cmpsConexos:
+                saida += str(vertice) + " "
+            saida += " "
+
+        return saida
 
 class PropriedadesIncompativeis(Exception):
     def __init__(self, message):
@@ -540,11 +650,8 @@ if __name__ == "__main__":
         entradas = list(map(int, input().split()))
         g.AdicionarArestas(entradas[0], entradas[1], entradas[2], entradas[3])
     
-    print(g)
-
-    g.RemoverArestas(entradas[1], entradas[2])
-
-    print(g)
+    listaDeComp = g.CompFortementeCnx()
+    print(listaDeComp)
 
     print("=== + FIM + ===")
 
@@ -554,5 +661,49 @@ nao_direcionado
 0 0 1 1
 1 1 2 1
 2 1 3 1
-3 2 3 1 
+3 2 3 1
+
+8 12
+direcionado
+0 0 1 1
+1 1 4 1
+2 2 3 1
+3 2 6 1
+4 3 2 1
+5 3 7 1
+6 4 0 1
+7 4 5 1
+8 5 6 1
+9 6 5 1
+10 6 7 1
+11 7 7 1
+
+8 14
+direcionado
+0 0 1 1
+1 1 2 1
+2 2 0 1
+3 3 1 1
+4 3 2 1
+5 3 4 1
+6 4 3 1
+7 4 5 1
+8 5 2 1
+9 5 6 1
+10 6 5 1
+11 7 4 1
+12 7 6 1
+13 7 7 1
+
+8 9
+direcionado
+0 0 1 1
+1 1 2 1
+2 2 3 1
+3 3 0 1
+4 2 4 1
+5 4 5 1
+6 5 6 1
+7 6 4 1
+8 6 7 1
 """
