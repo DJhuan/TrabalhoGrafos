@@ -156,7 +156,6 @@ quanto a lista de adjacência."""
                     listaArestas.append(self.arestas[i][j[0]])
             visitado[i] = "V"
             
-        listaArestas.sort()
         return listaArestas
 
     def ArvoreDFS(self, inicial):
@@ -189,28 +188,22 @@ quanto a lista de adjacência."""
 
         return arvore
 
-    def OrdemTopologica(self):
-        """Argoritmo de Kahn. Retorna uma possibilidade de ordem de execução"""
-        if self.VerificacoesGrafo("vii") == "O grafo possui ciclos.":
-            raise IndexError("O grafo possui ciclos. Não é possível calcular a ordem topológica.")
-        grau = {} #Dicionário que contém o grau atual de cada vértice.
+    def OrdemTopologica(self, pilha, listaExecucao, visitado):
+        """Argoritmo DFS. Retorna uma possibilidade de ordem de execução"""
+        visitado[0] = "A"
+        pilha.append(0)
+        while pilha:
+            t = len(pilha)-1
+            i = pilha.pop(t)
+            for j in self.lista[i]:
+                if visitado[self.vertices[j[0]]] == "N":
+                    visitado[self.vertices[j[0]]] = "A"
+                    pilha.append(j[0])
+                    listaExecucao.append(j[0])
+                    listaExecucao = self.FechoTransitivo(pilha, listaExecucao, visitado)
+            visitado[i] = "V"
 
-        for vertice in self.lista:
-            grau[vertice] = 0
-        for vertice in self.lista:
-            for i in self.lista[vertice]:
-                grau[i[0]] += 1
-
-        listaExecucao = []
-
-        while len(listaExecucao) < len(self.vertices):
-            for i in grau:
-                if grau[i] == 0:
-                    listaExecucao.append(i)
-                    for j in self.lista[i]:
-                        grau[j[0]] -= 1
-                    grau[i] = None
-
+        listaExecucao.reverse()
         return listaExecucao
 
     def CompConexos(self):
@@ -288,15 +281,6 @@ quanto a lista de adjacência."""
         return ciclo
     
     def ArvoreGeradoraMinima (self):
-        ehPond = False
-        for i in range(len(self.matriz)):
-            for j in range(len(self.matriz[i])):
-                if self.matriz[i][j] != 1 and self.matriz[i][j] != None:
-                    ehPond = True
-        
-        if ehPond == False:
-            return -1
-
         listaArestas = [] #configuração: (valor, v1, v2)
         for i in range(len(self.matriz)):
             for j in range(len(self.matriz[i])):
@@ -305,7 +289,7 @@ quanto a lista de adjacência."""
         listaArestas.sort()
 
         arvore = {}
-        listaArestas2 = []
+        valor = 0
         for vertice in self.lista:
             arvore[vertice] = []
         
@@ -324,11 +308,9 @@ quanto a lista de adjacência."""
                 arvore[aresta[2]].remove((aresta[1], aresta[0]))
             else:
                 quantidade = quantidade+1
-                listaArestas2.append(self.arestas[aresta[1]][aresta[2]])
+                valor += aresta[0]
 
-        listaArestas2.sort()
-
-        return listaArestas2
+        return valor
 
     def verifica_ciclo(self, pai, ciclo, visitado, pilha, lista, direcionado):
         """Usa DFS para verificação de ciclo. Se chegar em um vértice que já foi encontrado, mas não explorado, há um ciclo.""" 
@@ -356,7 +338,7 @@ quanto a lista de adjacência."""
         for tupla in self.lista[vertice]:
             u = tupla[0]
             if visitado[u] == "N":
-                print (vertice, pai)
+                #print (vertice, pai)
                 pai[u] = vertice
                 tempo += 1
                 self.TarjanA(u, visitado, low, tempoD, pai, arestasPonte, tempo)
@@ -376,11 +358,11 @@ quanto a lista de adjacência."""
         for tupla in self.lista[vertice]:
             u = tupla[0]
             if visitado[u] == "N":
-                print (vertice, pai)
+                #print (vertice, pai)
                 pai[u] = vertice
                 tempo += 1
-                self.TarjanA(u, visitado, low, tempoD, pai, verticesArtic, tempo)
-                #low[vertice] = min(low[vertice], low[u])
+                self.TarjanV(u, visitado, low, tempoD, pai, verticesArtic, tempo)
+                low[vertice] = min(low[vertice], low[u])
                 if low[u] >= tempoD[vertice]:
                     verticesArtic.append(vertice)
             elif visitado[u] == "A" and u != pai[vertice]:
@@ -389,9 +371,6 @@ quanto a lista de adjacência."""
         visitado[vertice] = "V"
     
     def Cortes(self, id):
-        if self.direcionado:
-            return -1
-        
         visitado = ["N"]*len(self.vertices)
         low = [None]*len(self.vertices)
         tempoD = [None]*len(self.vertices)
@@ -492,7 +471,7 @@ quanto a lista de adjacência."""
 
         if opcaoVerificacao == "vii": #tem ciclos?
             """Verifica o ciclo a partir do primeiro vértice"""
-            print (self.lista)
+            #print (self.lista)
             for i in range (len(self.vertices)): #Verifica loop
                 if self.matriz[i][i] != None:
                     return("O grafo possui ciclos.")
@@ -580,29 +559,23 @@ quanto a lista de adjacência."""
 
         return None  #Retorna None se nenhum caminho hamiltoniano foi encontrado
     
-    def FechoTransitivo(self):
-        if not self.direcionado:
-            return -1
-        
-        listaVertices = [0]
-        visitado = ["N"]*len(self.vertices) #Lista de todos os vértices, que informa o estado atual de cada vértice.
+    def FechoTransitivo(self, pilha, visitado, listaVertices):
         #"N": ainda não foi encontrado.
         #"A": foi encontrado, mas não foi explorado.
         #"V": foi explorado.
-        fila = [0]
         visitado[0] = "A"
-
-        while fila:
-            i = fila.pop(0)
+        pilha.append(0)
+        while pilha:
+            t = len(pilha)-1
+            i = pilha.pop(t)
             for j in self.lista[i]:
                 if visitado[self.vertices[j[0]]] == "N":
                     visitado[self.vertices[j[0]]] = "A"
-                    fila.append(j[0])
+                    pilha.append(j[0])
                     listaVertices.append(j[0])
+                    listaVertices = self.FechoTransitivo(pilha, visitado, listaVertices)
             visitado[i] = "V"
 
-        listaVertices.sort()
-            
         return listaVertices
     
     def _dfs(self, v_ini, tempo=1, tempos=[], visitados=set()):
@@ -712,19 +685,25 @@ if __name__ == "__main__":
         elif i == 5:
             print('IMPLEMENTAR')
         elif i == 6:
-            vertices = g.Cortes(2)
-            for j in range (len(vertices)):
-                if j == len(vertices)-1:
-                    print (vertices[j])
-                else:
-                    print (vertices[j], end=' ')
+            if g.direcionado:
+                print ("-1")
+            else:
+                vertices = g.Cortes(2)
+                for j in range (len(vertices)):
+                    if j == len(vertices)-1:
+                        print (vertices[j])
+                    else:
+                        print (vertices[j], end=' ')
         elif i == 7:
-            arestas = g.Cortes(1)
-            for j in range (len(arestas)):
-                if j == len(arestas)-1:
-                    print (arestas[j])
-                else:
-                    print (arestas[j], end=' ')
+            if g.direcionado:
+                print ("-1")
+            else:
+                arestas = g.Cortes(1)
+                for j in range (len(arestas)):
+                    if j == len(arestas)-1:
+                        print (arestas[j])
+                    else:
+                        print (arestas[j], end=' ')
         elif i == 8:
             print('IMPLEMENTAR')
         elif i == 9:
@@ -735,25 +714,39 @@ if __name__ == "__main__":
                 else:
                     print (arvore[j], end=' ')
         elif i == 10:
-            print (g.ArvoreGeradoraMinima())
+            ehPond = False
+            for i in range(len(g.matriz)):
+                for j in range(len(g.matriz[i])):
+                    if g.matriz[i][j] != 1 and g.matriz[i][j] != None:
+                        ehPond = True
+            if ehPond == False or g.direcionado or g.VerificacoesGrafo("iii") == "O grafo é conexo.":
+                print ("-1")
+            else:
+                print(g.ArvoreGeradoraMinima())
         elif i == 11:
-            ordem = g.OrdemTopologica()
-            for j in range (len(ordem)):
-                if j == len(ordem)-1:
-                    print (ordem[j])
-                else:
-                    print (ordem[j], end=' ')
+            if g.VerificacoesGrafo("vii") == "O grafo possui ciclos.":
+                print ("-1")
+            else:
+                ordem = g.OrdemTopologica()
+                for j in range (len(ordem)):
+                    if j == len(ordem)-1:
+                        print (ordem[j])
+                    else:
+                        print (ordem[j], end=' ')
         elif i == 12:
             print ('IMPLEMENTAR')
         elif i == 13:
             print ('IMPLEMENTAR')
         elif i == 14:
-            fecho = g.FechoTransitivo()
-            for j in range (len(fecho)):
-                if j == len(fecho)-1:
-                    print (fecho[j])
-                else:
-                    print (fecho[j], end=' ')
+            if not g.direcionado:
+                print (-1)
+            else:
+                fecho = g.FechoTransitivo([], ["N"]*len(g.vertices), [])
+                for j in range (len(fecho)):
+                    if j == len(fecho)-1:
+                        print (fecho[j])
+                    else:
+                        print (fecho[j], end=' ')
 
 
     print("=== + FIM + ===")
