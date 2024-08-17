@@ -158,7 +158,29 @@ quanto a lista de adjacência."""
 
         return listaArestas
 
-    #IMPLEMENTAR ARVORE DFS ATUALIZADA.
+    def ArvoreDFS(self):
+        """Realiza a busca em profundidade a partir do vértice 0. Retorna os identificadores das arestas."""
+        listaArestas = []
+        visitado = ["N"] * len(self.vertices)  #Lista de todos os vértices, que informa o estado atual de cada vértice.
+        #"N": ainda não foi encontrado.
+        #"A": foi encontrado, mas não foi explorado.
+        #"V": foi explorado.
+
+        def dfs_aux(v):
+            visitado[v] = "A"
+            for u, _ in sorted(self.lista[v]):
+                if visitado[self.vertices[u]] == "N":
+                    listaArestas.append(self.arestas[v][u])
+                    dfs_aux(u)
+            visitado[v] = "V"
+
+        dfs_aux(0)  #Inicia a DFS a partir do vértice 0
+
+        #Verifica se tem vértices desconectados e ignora eles
+        if "N" in visitado:
+            print("O grafo é desconexo. Considerando apenas a árvore com a raiz 0.")
+
+        return listaArestas
 
     def OrdemTopologica(self, pilha, listaExecucao, visitado):
         """Argoritmo DFS. Retorna uma possibilidade de ordem de execução"""
@@ -630,7 +652,12 @@ if __name__ == "__main__":
         elif i == 1:
             print('IMPLEMENTAR')
         elif i == 2:
-            print('IMPLEMENTAR')
+            arvore_dfs = g.ArvoreDFS()
+            for j in range(len(arvore_dfs)):
+                if j == len(arvore_dfs) - 1:
+                    print(arvore_dfs[j])
+                else:
+                    print(arvore_dfs[j], end=' ')
         elif i == 3:
             print('IMPLEMENTAR')
         elif i == 4:
@@ -732,7 +759,7 @@ direcionado
 11 7 7 1
 
 8 14
-direcionado
+nao_direcionado
 0 0 1 1
 1 1 2 1
 2 2 0 1
@@ -749,7 +776,7 @@ direcionado
 13 7 7 1
 
 8 9
-direcionado
+nao_direcionado
 0 0 1 1
 1 1 2 1
 2 2 3 1
