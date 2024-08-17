@@ -489,7 +489,7 @@ quanto a lista de adjacência."""
 
     def Dijkstra(self, verticeInicial):
         distancias = {}
-        for key in self.vertices.keys():
+        for key in self.vertices:
             distancias[key] = (False, float('inf'))
         distancias[verticeInicial] = (True, 0, None)
         fila = []
@@ -511,13 +511,15 @@ quanto a lista de adjacência."""
     def MenorCaminho(self, vIni, vFinal):
         distancias = self.Dijkstra(vIni)
 
+        try:
+            (_, d, traceback) = distancias[vFinal]
+            caminho = f"{vFinal} (Distancia: {d})"
 
-        (_, d, traceback) = distancias[vFinal]
-        caminho = f"{vFinal} (Distancia: {d})"
-
-        while traceback != None:
-            caminho = f"{traceback} -> " + caminho
-            (*_, traceback) = distancias[traceback]
+            while traceback != None:
+                caminho = f"{traceback} -> " + caminho
+                (*_, traceback) = distancias[traceback]
+        except ValueError:
+            return -1
 
         return caminho
 
@@ -672,7 +674,7 @@ if __name__ == "__main__":
         entradas = list(map(int, input().split()))
         g.AdicionarArestas(entradas[0], entradas[1], entradas[2], entradas[3])
     
-    print(g.FechoTransitivo())
+    print(g.MenorCaminho(1, 7))
 
     print("=== + FIM + ===")
 
@@ -727,4 +729,5 @@ direcionado
 6 5 6 1
 7 6 4 1
 8 6 7 1
+
 """
