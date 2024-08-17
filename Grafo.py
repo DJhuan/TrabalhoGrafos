@@ -47,9 +47,9 @@ class Grafo:
                     self.lista[para].append((de, peso))
 
         ### FIM DA INICIAÇÃO EM LISTA ================
-    
+
     def __str__(self):
-        """Método chamado implicitamente pelo interpretador ou explicitamente pelo usuário. 
+        """Método chamado implicitamente pelo interpretador ou explicitamente pelo usuário.
 Não recebe nada e retorna uma string que representa tanto a matriz
 quanto a lista de adjacência."""
         string = "==== MATRIZ ====\n"
@@ -58,7 +58,7 @@ quanto a lista de adjacência."""
             for j in self.matriz[i]:
                 string += "{:>4}".format(str(j)) + ' '
             string += '\n'
-        
+
         string = "=== ARESTAS ===\n"
         for v in self.vertices:
             i = self.vertices[v]
@@ -69,9 +69,9 @@ quanto a lista de adjacência."""
         string += "\n==== LISTA ====\n"
         for key in self.lista:
             string += f"{key}: {str(self.lista[key])}\n"
-            
+
         return string
-    
+
     def AdicionarArestas(self, id, v1, v2, valor=0):
         """Adiciona a aresta a partir de dois vértices recebidos e um valor. Não retorna nada."""
         self.matriz[v1][v2] = valor
@@ -87,13 +87,13 @@ quanto a lista de adjacência."""
         """Recebe os vértices v1 e v2 que correspondem a uma aresta e a remove. Não retorna nada."""
         if v1 not in self.lista or v2 not in self.lista:
             raise IndexError("Os vértices fornecidos não existem")
-        
+
         self.matriz [v1][v2] = None
         self.arestas[v1][v2] = None
         if not self.direcionado:
             self.matriz [v2][v1] = None
             self.arestas[v2][v1] = None
-        
+
         for tupla in self.lista[v1]:
             if tupla[0] == v2:
                 self.lista[v1].remove(tupla)
@@ -155,7 +155,7 @@ quanto a lista de adjacência."""
                     fila.append(j[0])
                     listaArestas.append(self.arestas[i][j[0]])
             visitado[i] = "V"
-            
+
         return listaArestas
 
     #IMPLEMENTAR ARVORE DFS ATUALIZADA.
@@ -192,13 +192,13 @@ quanto a lista de adjacência."""
             verticeId = self.vertices[vertice]
             if not visitados[verticeId]:
                 componente = list(self.ArvoreBFS(vertice).keys())
-                for v in componente: 
+                for v in componente:
                     visitados[self.vertices[v]] = True
 
                 componentes.append(componente)
-                
+
         return componentes
-    
+
     def CicloArvoreGeradora(self, arvore):
         pass
 
@@ -227,7 +227,7 @@ quanto a lista de adjacência."""
         # apresentados em grupos dentro da lista vertices_conexos
         for componente in tempos_fechamento:
             vertices_conexos.append(list(map(lambda v: v[1], componente)))
-            
+
         return vertices_conexos
 
 
@@ -249,9 +249,9 @@ quanto a lista de adjacência."""
                 pilha.append(vertice)
                 visitado[vertice] = "A"
                 ciclo = self.verifica_ciclo(vertice, ciclo, visitado, pilha, arvore, 0)
-            
+
         return ciclo
-    
+
     def ArvoreGeradoraMinima (self):
         listaArestas = [] #configuração: (valor, v1, v2)
         for i in range(len(self.matriz)):
@@ -264,17 +264,17 @@ quanto a lista de adjacência."""
         valor = 0
         for vertice in self.lista:
             arvore[vertice] = []
-        
+
         quantidade = 0
         cont = 0
         qtArestas = len(listaArestas)
         while quantidade < len(self.vertices)-1 and cont < qtArestas:
             cont = cont+1
             aresta = listaArestas.pop(0)
-            
-            arvore[aresta[1]].append((aresta[2], aresta[0])) 
+
+            arvore[aresta[1]].append((aresta[2], aresta[0]))
             arvore[aresta[2]].append((aresta[1], aresta[0]))
-            
+
             if self.CicloArvoreGeradora(arvore):
                 arvore[aresta[1]].remove((aresta[2], aresta[0]))
                 arvore[aresta[2]].remove((aresta[1], aresta[0]))
@@ -285,7 +285,7 @@ quanto a lista de adjacência."""
         return valor
 
     def verifica_ciclo(self, pai, ciclo, visitado, pilha, lista, direcionado):
-        """Usa DFS para verificação de ciclo. Se chegar em um vértice que já foi encontrado, mas não explorado, há um ciclo.""" 
+        """Usa DFS para verificação de ciclo. Se chegar em um vértice que já foi encontrado, mas não explorado, há um ciclo."""
         ultimo = len(pilha)-1
         i = pilha[ultimo]
         for j in lista[i]:
@@ -301,7 +301,7 @@ quanto a lista de adjacência."""
         ultimo = len(pilha)-1
         pilha.pop(ultimo)
         return ciclo
-    
+
     def TarjanA(self, vertice, visitado, low, tempoD, pai, arestasPonte, tempo):
         """Aplica o método de Tarjan para encontrar arestas ponte"""
         visitado[vertice] = "A"
@@ -341,7 +341,7 @@ quanto a lista de adjacência."""
                 low[vertice] = min(low[vertice], tempoD[u])
 
         visitado[vertice] = "V"
-    
+
     def Cortes(self, id):
         visitado = ["N"]*len(self.vertices)
         low = [None]*len(self.vertices)
@@ -357,7 +357,7 @@ quanto a lista de adjacência."""
 
             arestasPonte.sort()
             return arestasPonte
-        
+
         if id == 2:
             verticesArtic = []
             for vertice in self.vertices:
@@ -368,6 +368,17 @@ quanto a lista de adjacência."""
             return verticesArtic
 
 
+    def dfs(self, vertice, visitado):
+        """Função de busca em profundidade (DFS) para percorrer o grafo."""
+
+        visitado[vertice] = True
+
+        #Percorre todos os vértices adjacentes ao vértice atual
+        for i in range(len(self.vertices)):
+            if self.matriz[vertice][i] is not None and not visitado[i]:
+                self.dfs(i, visitado)  #Recursivamente visita os vértices adjacentes
+
+
     def VerificacoesGrafo(self, opcaoVerificacao):
         # i: Verifica se é conexo
         # ii: Veriftica se é bipartido
@@ -375,15 +386,15 @@ quanto a lista de adjacência."""
         # iv: Verifica se tem ciclos
         # Retorna 1 se a resposta for sim e 0 se a resposta for não.
 
-        if opcaoVerificacao == "i":  #conexo?
-            visitado = [False] * len(self.vertices)
-            self.dfs(0, visitado)
-            if all(visitado):
-                return 1
+        if opcaoVerificacao == "i":  #Conexo?
+            if self.direcionado:
+                return 1 if len(self.CompFortementeCnx()) == 1 else 0
             else:
-                return 0
+                visitado = [False] * len(self.vertices)
+                self.dfs(0, visitado)
+                return 1 if all(visitado) else 0
 
-        if opcaoVerificacao == "ii": #bipartido?
+        if opcaoVerificacao == "ii":  #Bipartido?
             cor = [-1] * len(self.vertices)
             fila = []
 
@@ -394,10 +405,6 @@ quanto a lista de adjacência."""
 
                     while fila:
                         u = fila.pop(0)
-
-                        if self.matriz[u][u] is not None:
-                            return 0
-
                         for v in range(len(self.vertices)):
                             if self.matriz[u][v] is not None:
                                 if cor[v] == -1:
@@ -405,34 +412,34 @@ quanto a lista de adjacência."""
                                     fila.append(v)
                                 elif cor[v] == cor[u]:
                                     return 0
-
             return 1
 
-        if opcaoVerificacao == "iii": #euleriano?
-            for i in self.vertices.keys():
-                grau = 0
-                for j in self.vertices.keys():
-                    if self.matriz[self.vertices[i]][self.vertices[j]] is not None and i != j:
-                        grau += 1
-                if grau % 2 != 0:
-                    return 0
-            return 1
+        if opcaoVerificacao == "iii":  #Euleriano?
+            """IMPLEMENTAR"""
 
-        if opcaoVerificacao == "iv":  #tem ciclos?
-            for i in range(len(self.vertices)):
-                if self.matriz[i][i] is not None:
-                    return 1
-            ciclo = False
-            visitado = ["N"] * len(self.vertices)
-            pilha = []
-            for vertice in self.lista:
-                if visitado[self.vertices[vertice]] == "N":
-                    pilha.append(vertice)
-                    visitado[self.vertices[vertice]] = "A"
-                    ciclo = self.verifica_ciclo(vertice, ciclo, visitado, pilha, self.lista, self.direcionado)
-            if ciclo:
-                return 1
+        if opcaoVerificacao == "iv":  #Tem ciclos?
+            if self.direcionado:
+                visitado = ["N"] * len(self.vertices)
+                pilha = []
+                for vertice in self.lista:
+                    if visitado[self.vertices[vertice]] == "N":
+                        pilha.append(vertice)
+                        visitado[self.vertices[vertice]] = "A"
+                        if self.verifica_ciclo(vertice, False, visitado, pilha, self.lista, self.direcionado):
+                            return 1
+                return 0
             else:
+                for i in range(len(self.vertices)):
+                    if self.matriz[i][i] is not None:
+                        return 1
+                visitado = ["N"] * len(self.vertices)
+                pilha = []
+                for vertice in self.lista:
+                    if visitado[self.vertices[vertice]] == "N":
+                        pilha.append(vertice)
+                        visitado[self.vertices[vertice]] = "A"
+                        if self.verifica_ciclo(vertice, False, visitado, pilha, self.lista, self.direcionado):
+                            return 1
                 return 0
 
     def Dijkstra(self, verticeInicial):
@@ -455,7 +462,7 @@ quanto a lista de adjacência."""
                     distancias[nomeV] = (True, d, vAtual)
 
         return distancias
-    
+
     def MenorCaminho(self, vIni, vFinal):
         distancias = self.Dijkstra(vIni)
 
@@ -504,7 +511,7 @@ quanto a lista de adjacência."""
                     pilha.append((i, novo_caminho, novos_visitados))
 
         return None  #Retorna None se nenhum caminho hamiltoniano foi encontrado
-    
+
     def FechoTransitivo(self, pilha, visitado, listaVertices):
         #"N": ainda não foi encontrado.
         #"A": foi encontrado, mas não foi explorado.
@@ -523,7 +530,7 @@ quanto a lista de adjacência."""
             visitado[i] = "V"
 
         return listaVertices
-    
+
     def _dfs(self, v_ini, tempo=1, tempos=[], visitados=set()):
         a_explorar = [v_ini]
         retornos = []
@@ -547,12 +554,12 @@ quanto a lista de adjacência."""
                     retornos.append(a_explorar.pop()) # Remova e processe o vértice atual
             else:
                 # Se todos os filhos forem visitados, defina o tempo de término
-                tempos.append((tempo, v_atual)) 
+                tempos.append((tempo, v_atual))
                 tempo += 1
                 retornos.append(a_explorar.pop())
 
         return tempos, tempo, visitados
-    
+
     def _temporizar(self, tempo_decresc=[]):
         # Atribui um tempo de descoberta a cada vértice do grafo usando DFS.
         # Caso uma lista com tempos tenha sido fornecida, a atribuição dos tempos
@@ -580,7 +587,7 @@ quanto a lista de adjacência."""
         return tempos
 
     def _inverterArcos(self):
-        # Semelhante ao transpor uma matriz, este "transpõe" a lista 
+        # Semelhante ao transpor uma matriz, este "transpõe" a lista
         lista_invertida = {}
         for v in self.lista.keys():
             lista_invertida[v] = []
@@ -588,7 +595,7 @@ quanto a lista de adjacência."""
         for v in self.lista.keys():
             for filhos in self.lista[v]:
                 lista_invertida[filhos[0]].append((v, filhos[1]))
-        
+
         self.lista = lista_invertida
 
     @staticmethod
@@ -605,7 +612,7 @@ quanto a lista de adjacência."""
 class PropriedadesIncompativeis(Exception):
     def __init__(self, message):
         super().__init__(message)
-        
+
 if __name__ == "__main__":
     funcoes = list(map(int, input().split()))
     entradas = list(map(int, input().split()))
@@ -616,7 +623,7 @@ if __name__ == "__main__":
     for i in range(entradas[1]):
         entradas = list(map(int, input().split()))
         g.AdicionarArestas(entradas[0], entradas[1], entradas[2], entradas[3])
-    
+
     for i in funcoes:
         if i == 0:
             print('IMPLEMENTAR')
@@ -670,8 +677,11 @@ if __name__ == "__main__":
             else:
                 print(g.ArvoreGeradoraMinima())
         elif i == 11:
-            if g.VerificacoesGrafo("vii") == "O grafo possui ciclos.":
-                print ("-1")
+            if g.VerificacoesGrafo("i"):
+                print ("é conexo")
+            else:
+                print("não é conexo")
+            """
             else:
                 ordem = g.OrdemTopologica()
                 for j in range (len(ordem)):
@@ -679,6 +689,7 @@ if __name__ == "__main__":
                         print (ordem[j])
                     else:
                         print (ordem[j], end=' ')
+            """
         elif i == 12:
             print ('IMPLEMENTAR')
         elif i == 13:
@@ -748,5 +759,4 @@ direcionado
 6 5 6 1
 7 6 4 1
 8 6 7 1
-
 """
