@@ -158,35 +158,7 @@ quanto a lista de adjacência."""
             
         return listaArestas
 
-    def ArvoreDFS(self, inicial):
-        """Faz uma busca em profundidade a partir de um vértice inicial e retorna uma arvore DFS."""
-        arvore = {}
-        for i in self.vertices:
-            arvore[i] = []
-        visitado = ["N"]*len(self.vertices)
-        pilha = [inicial]
-        visitado[self.vertices[inicial]] = "A"
-
-        while pilha:
-            i = pilha.pop()
-            if visitado[self.vertices[i]] == "A":
-                for j in self.lista[i]:
-                    if visitado[self.vertices[j[0]]] == "N":
-                        visitado[self.vertices[j[0]]] = "A"
-                        pilha.append(j[0])
-                        arvore[i].append(j)
-                visitado[self.vertices[i]] = "V"
-
-        cont = 0
-        parar = False
-        while cont < len(visitado) and not parar:
-            if visitado[cont] == "N":
-                pilha.append(list(self.vertices.keys())[cont])
-                visitado[cont] = "A"
-                parar = True
-            cont = cont + 1
-
-        return arvore
+    #IMPLEMENTAR ARVORE DFS ATUALIZADA.
 
     def OrdemTopologica(self, pilha, listaExecucao, visitado):
         """Argoritmo DFS. Retorna uma possibilidade de ordem de execução"""
@@ -397,32 +369,21 @@ quanto a lista de adjacência."""
 
 
     def VerificacoesGrafo(self, opcaoVerificacao):
-        """Realiza diferentes verificações no grafo com base na opçao selecionada."""
+        # i: Verifica se é conexo
+        # ii: Veriftica se é bipartido
+        # iii: Verifica se é eulerianfo
+        # iv: Verifica se tem ciclos
+        # Retorna 1 se a resposta for sim e 0 se a resposta for não.
 
+        if opcaoVerificacao == "i":  #conexo?
+            visitado = [False] * len(self.vertices)
+            self.dfs(0, visitado)
+            if all(visitado):
+                return 1
+            else:
+                return 0
 
-        if opcaoVerificacao == "i": #quantidade de vertices
-            contVertices = len(self.vertices)
-            print("Quantidade de Vértices: ", contVertices)
-
-        if opcaoVerificacao == "ii": #quantidade de arestas
-            contAresta = 0
-            for i in range (len(self.vertices)):
-                for j in range (len(self.vertices)):
-                    if self.matriz[i][j]:
-                        contAresta += 1
-            if not self.direcionado:
-                contAresta = contAresta // 2
-            print("Quantidade de Arestas:", contAresta)
-
-        if opcaoVerificacao == "iii": #conexo?
-                visitado = [False] * len(self.vertices)
-                self.dfs(0, visitado)
-                if all(visitado):
-                    print("O grafo é conexo.")
-                else:
-                    print("O grafo não é conexo.")
-
-        if opcaoVerificacao == "iv":  #bipartido?
+        if opcaoVerificacao == "ii": #bipartido?
             cor = [-1] * len(self.vertices)
             fila = []
 
@@ -434,9 +395,8 @@ quanto a lista de adjacência."""
                     while fila:
                         u = fila.pop(0)
 
-                        if self.matriz[u][u]:
-                            print("O grafo não é bipartido.")
-                            return
+                        if self.matriz[u][u] is not None:
+                            return 0
 
                         for v in range(len(self.vertices)):
                             if self.matriz[u][v] is not None:
@@ -444,39 +404,26 @@ quanto a lista de adjacência."""
                                     cor[v] = 1 - cor[u]
                                     fila.append(v)
                                 elif cor[v] == cor[u]:
-                                    print("O grafo não é bipartido.")
-                                    return
+                                    return 0
 
-            print("O grafo é bipartido.")
+            return 1
 
-        if opcaoVerificacao == "v": #euleriano, semi-euleriano ou nenhum dos dois?
-            contador = 0
-
+        if opcaoVerificacao == "iii": #euleriano?
             for i in self.vertices.keys():
                 grau = 0
                 for j in self.vertices.keys():
-                    if self.matriz[self.vertices[i]][self.vertices[j]] is not None and i != j :
+                    if self.matriz[self.vertices[i]][self.vertices[j]] is not None and i != j:
                         grau += 1
                 if grau % 2 != 0:
-                    contador += 1
-            if contador == 0:
-                print("É um grafo euleriano.")
-            elif contador == 2:
-                print("É um grafo Semi-Euleriano.")
-            else:
-                print("O grafo não é euleriano e nem semi-euleriano.")
+                    return 0
+            return 1
 
-        if opcaoVerificacao == "vi": #hamiltoniano?
-            print("Ainda não implementado. (hamiltoniano)")
-
-        if opcaoVerificacao == "vii": #tem ciclos?
-            """Verifica o ciclo a partir do primeiro vértice"""
-            #print (self.lista)
-            for i in range (len(self.vertices)): #Verifica loop
-                if self.matriz[i][i] != None:
-                    return("O grafo possui ciclos.")
+        if opcaoVerificacao == "iv":  #tem ciclos?
+            for i in range(len(self.vertices)):
+                if self.matriz[i][i] is not None:
+                    return 1
             ciclo = False
-            visitado = ["N"]*len(self.vertices)
+            visitado = ["N"] * len(self.vertices)
             pilha = []
             for vertice in self.lista:
                 if visitado[self.vertices[vertice]] == "N":
@@ -484,12 +431,9 @@ quanto a lista de adjacência."""
                     visitado[self.vertices[vertice]] = "A"
                     ciclo = self.verifica_ciclo(vertice, ciclo, visitado, pilha, self.lista, self.direcionado)
             if ciclo:
-                return("O grafo possui ciclos.")
+                return 1
             else:
-                return("O grafo não possui ciclos.")
-
-        if opcaoVerificacao == "viii": #planar?
-            print("Ainda não implementado. (planar)")
+                return 0
 
     def Dijkstra(self, verticeInicial):
         distancias = {}
