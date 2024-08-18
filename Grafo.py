@@ -252,7 +252,6 @@ quanto a lista de adjacência."""
 
         return vertices_conexos
 
-
     def CicloArvoreGeradora(self, lista):
         """Transforma o grafo direcionado em não direcionado e verifica o ciclo."""
         arvore = {}
@@ -486,6 +485,54 @@ quanto a lista de adjacência."""
                             return 1
                 return 0
 
+
+    def bfs(self, origem, destino, pai):
+        """Realiza uma busca em largura (BFS) para encontrar um caminho aumentante"""
+        visitado = [False] * len(self.vertices)
+        fila = [origem]
+        visitado[origem] = True
+
+        while fila:
+            u = fila.pop(0)
+
+            for indice, valor in enumerate(self.matriz[u]):
+                if visitado[indice] == False and valor is not None and valor > 0:
+                    fila.append(indice)
+                    visitado[indice] = True
+                    pai[indice] = u
+
+        return visitado[destino]
+
+    def FluxoMaximo(self):
+        """Calcula o valor do fluxo máximo de 0 a n-1."""
+        if not self.direcionado:
+            return "A função de fluxo máximo só pode ser usada em grafos direcionados."
+
+        origem = 0
+        destino = len(self.vertices) - 1
+        pai = [-1] * len(self.vertices)
+        fluxo_maximo = 0
+
+        while self.bfs(origem, destino, pai):
+            fluxo_caminho = float('Inf')
+            s = destino
+            while s != origem:
+                fluxo_caminho = min(fluxo_caminho, self.matriz[pai[s]][s] if self.matriz[pai[s]][s] is not None else 0)
+                s = pai[s]
+            fluxo_maximo += fluxo_caminho
+            v = destino
+            while v != origem:
+                u = pai[v]
+                if self.matriz[u][v] is None:
+                    self.matriz[u][v] = 0
+                if self.matriz[v][u] is None:
+                    self.matriz[v][u] = 0
+                self.matriz[u][v] -= fluxo_caminho
+                self.matriz[v][u] += fluxo_caminho
+                v = pai[v]
+
+        return fluxo_maximo
+
     def Dijkstra(self, verticeInicial):
         distancias = {}
         for key in self.vertices:
@@ -681,9 +728,9 @@ if __name__ == "__main__":
                 else:
                     print(arvore_dfs[j], end=' ')
         elif i == 3:
-            print('IMPLEMENTAR')
+            print("IMPLEMENTAR")
         elif i == 4:
-            print('IMPLEMENTAR')
+            print(g.FluxoMaximo())
         elif i == 5:
             print('IMPLEMENTAR')
         elif i == 6:
