@@ -437,7 +437,29 @@ quanto a lista de adjacência."""
             return 1
 
         if opcaoVerificacao == "iii":  #Euleriano?
-            """IMPLEMENTAR"""
+            if self.direcionado:
+                #Verifica se é fortemente conexo
+                if len(self.CompFortementeCnx()) != 1:
+                    return 0
+                #Verifica se o numero de arestas de entrada é igual ao de saída para cada vertice
+                for vertice in self.vertices:
+                    grau_entrada = sum(1 for i in range(len(self.vertices)) if self.matriz[i][vertice] is not None)
+                    grau_saida = sum(1 for i in range(len(self.vertices)) if self.matriz[vertice][i] is not None)
+                    if grau_entrada != grau_saida:
+                        return 0
+                return 1
+            else:
+                #Verifica se é conexo
+                visitado = [False] * len(self.vertices)
+                self.dfs(0, visitado)
+                if not all(visitado):
+                    return 0
+                #Verifica se todos os vértices tem grau par
+                for vertice in self.vertices:
+                    grau = sum(1 for i in range(len(self.vertices)) if self.matriz[vertice][i] is not None or self.matriz[i][vertice] is not None)
+                    if grau % 2 != 0:
+                        return 0
+                return 1
 
         if opcaoVerificacao == "iv":  #Tem ciclos?
             if self.direcionado:
@@ -704,10 +726,10 @@ if __name__ == "__main__":
             else:
                 print(g.ArvoreGeradoraMinima())
         elif i == 11:
-            if g.VerificacoesGrafo("i"):
-                print ("é conexo")
+            if g.VerificacoesGrafo("iii"):
+                print ("é euleriano")
             else:
-                print("não é conexo")
+                print("não é euleriano")
             """
             else:
                 ordem = g.OrdemTopologica()
@@ -737,11 +759,11 @@ if __name__ == "__main__":
 
 """
 4 4
-nao_direcionado
+direcionado
 0 0 1 1
 1 1 2 1
-2 1 3 1
-3 2 3 1
+2 3 2 1
+3 3 0 1
 
 8 12
 direcionado
