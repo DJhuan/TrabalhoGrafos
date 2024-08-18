@@ -1,4 +1,4 @@
-import time
+import copy
 
 class Grafo:
     def __init__(self, vertices=[], arestas=[], direcionado=True):
@@ -137,15 +137,15 @@ quanto a lista de adjacência."""
                 if self.vertices[v] > i:
                     self.vertices[v] -= 1
 
-    def ArvoreBFS(self):
-        """Realiza a busca em largura a partir do vértice 0. Retorna os identificadores das arestas."""
+    def ArvoreBFS(self, v=0):
+        """Realiza a busca em largura a partir do vértice v. Retorna os identificadores das arestas."""
         listaArestas = []
         visitado = ["N"]*len(self.vertices) #Lista de todos os vértices, que informa o estado atual de cada vértice.
         #"N": ainda não foi encontrado.
         #"A": foi encontrado, mas não foi explorado.
         #"V": foi explorado.
-        fila = [0]
-        visitado[0] = "A"
+        fila = [v]
+        visitado[v] = "A"
 
         while fila:
             i = fila.pop(0)
@@ -201,56 +201,42 @@ quanto a lista de adjacência."""
         return listaExecucao
 
     def CompConexos(self):
-        """Retorna componentes conexos como listas de vértices"""
+        """Retorna a quantidade de componentes conexos do grafo"""
 
         if self.direcionado:
-            msg = "A função CompConexos não pode ser utilizada em grafos não direcionados!"
+            msg = "A função CompConexos não pode ser utilizada em grafos direcionados!"
             raise(PropriedadesIncompativeis(msg))
 
-        componentes = []
-        visitados = [False] * len(self.vertices)
+        componentes = 0
+        visitados = set()
 
         for vertice in self.vertices:
-            verticeId = self.vertices[vertice]
-            if not visitados[verticeId]:
-                componente = list(self.ArvoreBFS(vertice).keys())
-                for v in componente:
-                    visitados[self.vertices[v]] = True
+            if vertice not in visitados:
+                _, _, componente = self._dfs(vertice)
+                for v in componente: 
+                    visitados.add(v)
 
-                componentes.append(componente)
-
+                componentes += 1
+                
         return componentes
 
-    def CicloArvoreGeradora(self, arvore):
-        pass
-
     def CompFortementeCnx(self):
-        """Encontra componentes fortemente conexas em um grafo orientado usando o algoritmo de Kosaraju"""
+        """Conta quantas componentes fortemente conexas há no grafo."""
 
         # Descobre os tempos de fechamento dos vértices
         tempos_fechamento = self._temporizar()
 
-        # Usando esses tempos, ele faz o mesmo, porém com arestas invertidas
-        self._inverterArcos()
-        # !!! Apesar de rearoveitar a variável abaixo, o seu conteúdo serão as
-        # componentes fortemente conexas !!!
-        tempos_fechamento = self._temporizar(tempos_fechamento)
+        # Garante que os tempos de fechamento estarão ordenados crescentemente
+        # a função lambda abaixo apenas indica a qual item da dupla será
+        # considerado durante a ordenação, no caso o tempo, que é o primeiro;
+        tempos_fechamento.sort(key=lambda tempo: tempo[0])
 
-        # Ao fim, voltamos os arcos para sua orientação original
-        self._inverterArcos()
-
-        # Extrair os vértices das tuplas
-        vertices_conexos = []
-
-        # Para cada componente encontrado
-        # Em cada componente tiremos o vértice segundo elemento da tupla, logo
-        # v[1]
-        # Todos os elementos do mesmo componente serão juntados numa lista e
-        # apresentados em grupos dentro da lista vertices_conexos
-        for componente in tempos_fechamento:
-            vertices_conexos.append(list(map(lambda v: v[1], componente)))
-
-        return vertices_conexos
+        # Para evitar incoerências futuras, criamos um novo grafo com arestas invertidas
+        gTransposto = copy.deepcopy(self)
+        gTransposto._inverterArcos()
+        componentes_conexas = gTransposto._temporizarReversa(tempos_fechamento)
+        del gTransposto
+        return len(componentes_conexas)
 
     def CicloArvoreGeradora(self, lista):
         """Transforma o grafo direcionado em não direcionado e verifica o ciclo."""
@@ -351,7 +337,6 @@ quanto a lista de adjacência."""
         for tupla in self.lista[vertice]:
             u = tupla[0]
             if visitado[u] == "N":
-                #print (vertice, pai)
                 pai[u] = vertice
                 tempo += 1
                 self.TarjanV(u, visitado, low, tempoD, pai, verticesArtic, tempo)
@@ -650,30 +635,29 @@ quanto a lista de adjacência."""
                 retornos.append(a_explorar.pop())
 
         return tempos, tempo, visitados
-
-    def _temporizar(self, tempo_decresc=[]):
+    
+    def _temporizar(self):
         # Atribui um tempo de descoberta a cada vértice do grafo usando DFS.
-        # Caso uma lista com tempos tenha sido fornecida, a atribuição dos tempos
-        # será feita na ordem decrescente dos tempos da lista.
-        # Esta especificidade mencionada é utilizada no algoritmo de Kosaraju
 
         visitados = set()
         tempo = 1
         tempos = []
+        for v in self.vertices:
+            if v not in visitados:
+                tempos, tempo, visitados = self._dfs(v, tempo, tempos, visitados)
 
-        if not tempo_decresc:
-            for v in self.vertices:
-                if v not in visitados:
-                    tempos, tempo, visitados = self._dfs(v, tempo, tempos, visitados)
+        return tempos
+    
+    def _temporizarReversa(self, tempo_decresc):
+        # Encontra as componentes fortemente conexas
 
-        else:
-            for v in reversed(tempo_decresc):
-                v = v[1] # Utiliza somente o vértice da tupla
-                if v not in visitados:
-                    componente, tempo, visitados = self._dfs(v, tempo, [], visitados)
-                    # Aqui, usamos .append pois no fim teremos uma lista de
-                    # componentes fortemente conexos.
-                    tempos.append(componente)
+        visitados = set()
+        tempos = []
+        for tupla in reversed(tempo_decresc):
+            v = tupla[1] # Utiliza somente o vértice da tupla
+            if v not in visitados:
+                componente, _, visitados = self._dfs(v, 0, [], visitados)
+                tempos.append(componente)
 
         return tempos
 
@@ -730,9 +714,9 @@ if __name__ == "__main__":
         elif i == 3:
             print("IMPLEMENTAR")
         elif i == 4:
-            print(g.FluxoMaximo())
+            print(g.CompConexos())
         elif i == 5:
-            print('IMPLEMENTAR')
+            print(g.CompFortementeCnx())
         elif i == 6:
             if g.direcionado:
                 print ("-1")
@@ -805,54 +789,15 @@ if __name__ == "__main__":
     print("=== + FIM + ===")
 
 """
-4 4
+5
+5 7
 direcionado
-0 0 1 1
-1 1 2 1
-2 3 2 1
-3 3 0 1
+0 0 1 2    
+1 0 2 4    
+2 1 2 5    
+3 1 4 3
+4 2 3 8
+5 3 1 2
+6 3 4 4
 
-8 12
-direcionado
-0 0 1 1
-1 1 4 1
-2 2 3 1
-3 2 6 1
-4 3 2 1
-5 3 7 1
-6 4 0 1
-7 4 5 1
-8 5 6 1
-9 6 5 1
-10 6 7 1
-11 7 7 1
-
-8 14
-nao_direcionado
-0 0 1 1
-1 1 2 1
-2 2 0 1
-3 3 1 1
-4 3 2 1
-5 3 4 1
-6 4 3 1
-7 4 5 1
-8 5 2 1
-9 5 6 1
-10 6 5 1
-11 7 4 1
-12 7 6 1
-13 7 7 1
-
-8 9
-nao_direcionado
-0 0 1 1
-1 1 2 1
-2 2 3 1
-3 3 0 1
-4 2 4 1
-5 4 5 1
-6 5 6 1
-7 6 4 1
-8 6 7 1
 """
