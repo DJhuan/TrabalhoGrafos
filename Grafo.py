@@ -204,8 +204,7 @@ quanto a lista de adjacência."""
         """Retorna a quantidade de componentes conexos do grafo"""
 
         if self.direcionado:
-            msg = "A função CompConexos não pode ser utilizada em grafos direcionados!"
-            raise(PropriedadesIncompativeis(msg))
+            return -1
 
         componentes = 0
         visitados = set()
@@ -222,6 +221,10 @@ quanto a lista de adjacência."""
 
     def CompFortementeCnx(self):
         """Conta quantas componentes fortemente conexas há no grafo."""
+
+        # O método não deve ser usada em grafos não direcionados
+        if not self.direcionado:
+            return -1
 
         # Descobre os tempos de fechamento dos vértices
         tempos_fechamento = self._temporizar()
@@ -759,17 +762,3 @@ if __name__ == "__main__":
 
 
     print("=== + FIM + ===")
-
-"""
-3
-5 7
-direcionado
-0 0 1 2    
-1 0 2 4    
-2 1 2 5    
-3 1 4 3
-4 2 3 8
-5 3 1 2
-6 3 4 4
-
-"""
