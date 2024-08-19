@@ -716,45 +716,45 @@ if __name__ == "__main__":
         g.AdicionarArestas(entradas[0], entradas[1], entradas[2], entradas[3])
 
     for i in funcoes:
-        if i == 1:
+        if i == 0:
             print(g.Conexo())
-        elif i == 2:
+        elif i == 1:
             print(g.Bipartido())
-        elif i == 3:
+        elif i == 2:
             print(g.Euleriano())
-        elif i == 4:
+        elif i == 3:
             print(g.TemCiclo())
-        elif i == 5:
+        elif i == 4:
             print(g.CompConexos())
-        elif i == 6:
+        elif i == 5:
             print(g.CompFortementeCnx())
-        elif i == 7:
+        elif i == 6:
             """VÉRTICES DE ARTICULAÇÃO (FUNÇÃO)"""
-        elif i == 8:
+        elif i == 7:
             """FUNÇÃO QUE CALCULA QUANTAS ARESTAS PONTES POSSUI UMN GRAFO NÃO-ORIENTADO"""
-        elif i == 9:
+        elif i == 8:
             arvore_dfs = g.ArvoreDFS()
             for j in range(len(arvore_dfs)):
                 if j == len(arvore_dfs) - 1:
                     print(arvore_dfs[j])
                 else:
                     print(arvore_dfs[j], end=' ')
-        elif i == 10:
+        elif i == 9:
             arvore = g.ArvoreBFS()
             for j in range (len(arvore)):
                 if j == len(arvore)-1:
                     print (arvore[j])
                 else:
                     print (arvore[j], end=' ')
-        elif i == 11:
+        elif i == 10:
             """CALCULAR O VALOR FINAL DE UMA ÁRVORE GERADORA MÍNIMA (PARA GRAFOS NÃO DIRECIONADOS)"""
-        elif i == 12:
+        elif i == 11:
             """IMPRIME A ORDEM DOS VERTICES EM UMA ORDENAÇÃO TOPOLÓGICA."""
-        elif i == 13:
+        elif i == 12:
             """VALOR DO CAMINHO MÍNIMO ENTRE DOIS VÉRTICES (PARA GRAFOS NÃO-ORIENTADOS COM PELO MENOS UM PESO DIFERENTE NAS ARESTAS)"""
-        elif i == 14:
+        elif i == 13:
             print(g.FluxoMaximo())
-        elif i == 15:
+        elif i == 14:
             """FECHO TRANSITIVO PARA GRAFOS DIRECIONADOS."""
 
 
