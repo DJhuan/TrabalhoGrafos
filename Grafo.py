@@ -182,23 +182,29 @@ quanto a lista de adjacência."""
 
         return listaArestas
 
-    def OrdemTopologica(self, pilha, listaExecucao, visitado):
-        """Argoritmo DFS. Retorna uma possibilidade de ordem de execução"""
-        visitado[0] = "A"
-        pilha.append(0)
-        while pilha:
-            t = len(pilha)-1
-            i = pilha.pop(t)
-            for j in self.lista[i]:
-                if visitado[self.vertices[j[0]]] == "N":
-                    visitado[self.vertices[j[0]]] = "A"
-                    pilha.append(j[0])
-                    listaExecucao.append(j[0])
-                    listaExecucao = self.FechoTransitivo(pilha, listaExecucao, visitado)
-            visitado[i] = "V"
+    def dfsOrdemTop (self, listaExecucao, visitado, v):
+        for j in self.lista[v]:
+            if visitado[j[0]] == "N":
+                visitado[j[0]] = "A"
+                listaExecucao = self.dfsOrdemTop(listaExecucao, visitado, j[0])
+        visitado[v] = "V"
+        if listaExecucao == -1:
+            return -1
+        listaExecucao.append(v)
+        return listaExecucao
 
+    def OrdemTopologica(self, listaExecucao, visitado):
+        """Argoritmo DFS. Retorna uma possibilidade de ordem de execução"""
+        for i in self.vertices:
+            if visitado[i] == "N":
+                visitado[i] = "A"
+                listaExecucao = self.dfsOrdemTop(listaExecucao, visitado, i)
+
+        if listaExecucao == -1:
+            return [-1]
         listaExecucao.reverse()
         return listaExecucao
+
 
     def CompConexos(self):
         """Retorna a quantidade de componentes conexos do grafo"""
@@ -732,9 +738,27 @@ if __name__ == "__main__":
         elif i == 5:
             print(g.CompFortementeCnx())
         elif i == 6:
-            """VÉRTICES DE ARTICULAÇÃO (FUNÇÃO)"""
+            if g.direcionado:
+                print ("-1")
+            else:
+                vertices = g.Cortes(2)
+                for j in range(len(vertices)):
+                    if j == len(vertices) - 1:
+                        print(vertices[j])
+                    else:
+                        print(vertices[j], end=' ')
+
         elif i == 7:
-            """FUNÇÃO QUE CALCULA QUANTAS ARESTAS PONTES POSSUI UMN GRAFO NÃO-ORIENTADO"""
+            if g.direcionado:
+                print ("-1")
+            else:
+                arestas = g.Cortes(1)
+                for j in range(len(arestas)):
+                    if j == len(arestas) - 1:
+                        print(arestas[j])
+                    else:
+                        print(arestas[j], end=' ')
+
         elif i == 8:
             arvore_dfs = g.ArvoreDFS()
             for j in range(len(arvore_dfs)):
@@ -750,15 +774,50 @@ if __name__ == "__main__":
                 else:
                     print (arvore[j], end=' ')
         elif i == 10:
-            """CALCULAR O VALOR FINAL DE UMA ÁRVORE GERADORA MÍNIMA (PARA GRAFOS NÃO DIRECIONADOS)"""
+            if not g.Conexo() or g.direcionado:
+                print ("-1")
+            else:
+                pond = False
+                cont1 = 0
+                cont2 = 0
+                while cont1 < len(g.vertices) and pond == False:
+                    while cont2 < len(g.vertices) and pond == False:
+                        if g.matriz[cont1][cont2] != None and g.matriz[cont1][cont2] != 0:
+                            pond = True
+                        cont2 += 1
+                    cont1 += 1
+            
+                if not pond:
+                    print ("-1")
+                else:
+                    print (g.ArvoreGeradoraMinima())
+
         elif i == 11:
-            """IMPRIME A ORDEM DOS VERTICES EM UMA ORDENAÇÃO TOPOLÓGICA."""
+            if not g.direcionado or g.TemCiclo():
+                print ("-1")
+            else:
+                ordem = g.OrdemTopologica([], ["N"]*len(g.vertices))
+                for j in range (len(ordem)):
+                    if j == len(ordem)-1:
+                        print (ordem[j])
+                    else:
+                        print (ordem[j], end=' ')
+
         elif i == 12:
             """VALOR DO CAMINHO MÍNIMO ENTRE DOIS VÉRTICES (PARA GRAFOS NÃO-ORIENTADOS COM PELO MENOS UM PESO DIFERENTE NAS ARESTAS)"""
         elif i == 13:
             print(g.FluxoMaximo())
         elif i == 14:
-            """FECHO TRANSITIVO PARA GRAFOS DIRECIONADOS."""
+            if not g.direcionado:
+                print ("-1")
+            else:
+                fecho = g.FechoTransitivo([], ["N"]*len(g.vertices), [])
+                for j in range (len(fecho)):
+                    if j == len(fecho)-1:
+                        print (fecho[j])
+                    else:
+                        print (fecho[j], end=' ')
 
 
-    print("=== + FIM + ===")
+
+
