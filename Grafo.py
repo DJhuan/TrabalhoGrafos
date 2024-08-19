@@ -384,69 +384,86 @@ quanto a lista de adjacência."""
             if self.matriz[vertice][i] is not None and not visitado[i]:
                 self.dfs(i, visitado)  #Recursivamente visita os vértices adjacentes
 
+    def Conexo(self):
+        """Verifica se o grafo é conexo (verifica conectividade fraca para grafos direcionados). Retorna 0 para não e 1 para sim."""
+        if self.direcionado:
+            #Verifica a conectividade do grafo original
+            visitado = [False] * len(self.vertices)
+            self.dfs(0, visitado)
+            if not all(visitado):
+                return 0
 
-    def VerificacoesGrafo(self, opcaoVerificacao):
-        # i: Verifica se é conexo
-        # ii: Veriftica se é bipartido
-        # iii: Verifica se é eulerianfo
-        # iv: Verifica se tem ciclos
-        # Retorna 1 se a resposta for sim e 0 se a resposta for não.
+            #Cria o grafo transposto (invertendo as direções das arestas)
+            grafo_transposto = self.transpor()
 
-        if opcaoVerificacao == "i":  #Conexo?
-            if self.direcionado:
-                return 1 if len(self.CompFortementeCnx()) == 1 else 0
-            else:
-                visitado = [False] * len(self.vertices)
-                self.dfs(0, visitado)
-                return 1 if all(visitado) else 0
+            #Verifica a conectividade do grafo transposto
+            visitado = [False] * len(self.vertices)
+            grafo_transposto.dfs(0, visitado)
+            return 1 if all(visitado) else 0
+        else:
+            visitado = [False] * len(self.vertices)
+            self.dfs(0, visitado)
+            return 1 if all(visitado) else 0
 
-        if opcaoVerificacao == "ii":  #Bipartido?
-            cor = [-1] * len(self.vertices)
-            fila = []
+    def transpor(self): #Chamada na função 'Conexo'
+        grafo_transposto = Grafo(vertices=self.vertices, direcionado=self.direcionado)
 
-            for inicio in range(len(self.vertices)):
-                if cor[inicio] == -1:
-                    cor[inicio] = 1
-                    fila.append(inicio)
+        for v in self.vertices:
+            for (adj, peso) in self.lista[v]:
+                grafo_transposto.AdicionarArestas(self.arestas[v][adj], adj, v, peso)
 
-                    while fila:
-                        u = fila.pop(0)
-                        for v in range(len(self.vertices)):
-                            if self.matriz[u][v] is not None:
-                                if cor[v] == -1:
-                                    cor[v] = 1 - cor[u]
-                                    fila.append(v)
-                                elif cor[v] == cor[u]:
-                                    return 0
+        return grafo_transposto
+
+    def Bipartido(self):
+        """Verifica se o grafo não-orientado é bipartido. Retorna 0 para não e 1 para sim."""
+        cor = [-1] * len(self.vertices)
+        fila = []
+
+        for inicio in range(len(self.vertices)):
+            if cor[inicio] == -1:
+                cor[inicio] = 1
+                fila.append(inicio)
+
+                while fila:
+                    u = fila.pop(0)
+                    for v in range(len(self.vertices)):
+                        if self.matriz[u][v] is not None:
+                            if cor[v] == -1:
+                                cor[v] = 1 - cor[u]
+                                fila.append(v)
+                            elif cor[v] == cor[u]:
+                                return 0
+        return 1
+
+    def Euleriano(self):
+        """Verifica se o grafo é euleriano. Retorna 0 para não e 1 para sim."""
+        if self.direcionado:
+            #Verifica se é fortemente conexo
+            if self.CompFortementeCnx() != 1:
+                return 0
+            #Verifica se o numero de arestas de entrada é igual ao de saída para cada vertice
+            for vertice in self.vertices:
+                grau_entrada = sum(1 for i in range(len(self.vertices)) if self.matriz[i][vertice] is not None)
+                grau_saida = sum(1 for i in range(len(self.vertices)) if self.matriz[vertice][i] is not None)
+                if grau_entrada != grau_saida:
+                    return 0
+            return 1
+        else:
+            #Verifica se é conexo
+            visitado = [False] * len(self.vertices)
+            self.dfs(0, visitado)
+            if not all(visitado):
+                return 0
+            #Verifica se todos os vértices tem grau par
+            for vertice in self.vertices:
+                grau = sum(1 for i in range(len(self.vertices)) if self.matriz[vertice][i] is not None or self.matriz[i][vertice] is not None)
+                if grau % 2 != 0:
+                    return 0
             return 1
 
-        if opcaoVerificacao == "iii":  #Euleriano?
-            if self.direcionado:
-                #Verifica se é fortemente conexo
-                if len(self.CompFortementeCnx()) != 1:
-                    return 0
-                #Verifica se o numero de arestas de entrada é igual ao de saída para cada vertice
-                for vertice in self.vertices:
-                    grau_entrada = sum(1 for i in range(len(self.vertices)) if self.matriz[i][vertice] is not None)
-                    grau_saida = sum(1 for i in range(len(self.vertices)) if self.matriz[vertice][i] is not None)
-                    if grau_entrada != grau_saida:
-                        return 0
-                return 1
-            else:
-                #Verifica se é conexo
-                visitado = [False] * len(self.vertices)
-                self.dfs(0, visitado)
-                if not all(visitado):
-                    return 0
-                #Verifica se todos os vértices tem grau par
-                for vertice in self.vertices:
-                    grau = sum(1 for i in range(len(self.vertices)) if self.matriz[vertice][i] is not None or self.matriz[i][vertice] is not None)
-                    if grau % 2 != 0:
-                        return 0
-                return 1
-
-        if opcaoVerificacao == "iv":  #Tem ciclos?
-            if self.direcionado:
+    def TemCiclo(self):
+        """Verifica se o grafo tem ciclos. Retorna 0 para não e 1 pra sim."""
+        if self.direcionado:
                 visitado = ["N"] * len(self.vertices)
                 pilha = []
                 for vertice in self.lista:
@@ -456,20 +473,19 @@ quanto a lista de adjacência."""
                         if self.verifica_ciclo(vertice, False, visitado, pilha, self.lista, self.direcionado):
                             return 1
                 return 0
-            else:
-                for i in range(len(self.vertices)):
-                    if self.matriz[i][i] is not None:
+        else:
+            for i in range(len(self.vertices)):
+                if self.matriz[i][i] is not None:
+                    return 1
+            visitado = ["N"] * len(self.vertices)
+            pilha = []
+            for vertice in self.lista:
+                if visitado[self.vertices[vertice]] == "N":
+                    pilha.append(vertice)
+                    visitado[self.vertices[vertice]] = "A"
+                    if self.verifica_ciclo(vertice, False, visitado, pilha, self.lista, self.direcionado):
                         return 1
-                visitado = ["N"] * len(self.vertices)
-                pilha = []
-                for vertice in self.lista:
-                    if visitado[self.vertices[vertice]] == "N":
-                        pilha.append(vertice)
-                        visitado[self.vertices[vertice]] = "A"
-                        if self.verifica_ciclo(vertice, False, visitado, pilha, self.lista, self.direcionado):
-                            return 1
-                return 0
-
+            return 0
 
     def bfs(self, origem, destino, pai):
         """Realiza uma busca em largura (BFS) para encontrar um caminho aumentante"""
@@ -700,96 +716,52 @@ if __name__ == "__main__":
         g.AdicionarArestas(entradas[0], entradas[1], entradas[2], entradas[3])
 
     for i in funcoes:
-        if i == 0:
-            print('IMPLEMENTAR')
-        elif i == 1:
-            print('IMPLEMENTAR')
+        if i == 1:
+            print(g.Conexo())
         elif i == 2:
+            print(g.Bipartido())
+        elif i == 3:
+            print(g.Euleriano())
+        elif i == 4:
+            print(g.TemCiclo())
+        elif i == 5:
+            print(g.CompConexos())
+        elif i == 6:
+            print(g.CompFortementeCnx())
+        elif i == 7:
+            """VÉRTICES DE ARTICULAÇÃO (FUNÇÃO)"""
+        elif i == 8:
+            """FUNÇÃO QUE CALCULA QUANTAS ARESTAS PONTES POSSUI UMN GRAFO NÃO-ORIENTADO"""
+        elif i == 9:
             arvore_dfs = g.ArvoreDFS()
             for j in range(len(arvore_dfs)):
                 if j == len(arvore_dfs) - 1:
                     print(arvore_dfs[j])
                 else:
                     print(arvore_dfs[j], end=' ')
-        elif i == 3:
-            print("IMPLEMENTAR")
-        elif i == 4:
-            print(g.CompConexos())
-        elif i == 5:
-            print(g.CompFortementeCnx())
-        elif i == 6:
-            if g.direcionado:
-                print ("-1")
-            else:
-                vertices = g.Cortes(2)
-                for j in range (len(vertices)):
-                    if j == len(vertices)-1:
-                        print (vertices[j])
-                    else:
-                        print (vertices[j], end=' ')
-        elif i == 7:
-            if g.direcionado:
-                print ("-1")
-            else:
-                arestas = g.Cortes(1)
-                for j in range (len(arestas)):
-                    if j == len(arestas)-1:
-                        print (arestas[j])
-                    else:
-                        print (arestas[j], end=' ')
-        elif i == 8:
-            print('IMPLEMENTAR')
-        elif i == 9:
+        elif i == 10:
             arvore = g.ArvoreBFS()
             for j in range (len(arvore)):
                 if j == len(arvore)-1:
                     print (arvore[j])
                 else:
                     print (arvore[j], end=' ')
-        elif i == 10:
-            ehPond = False
-            for i in range(len(g.matriz)):
-                for j in range(len(g.matriz[i])):
-                    if g.matriz[i][j] != 1 and g.matriz[i][j] != None:
-                        ehPond = True
-            if ehPond == False or g.direcionado or g.VerificacoesGrafo("iii") == "O grafo é conexo.":
-                print ("-1")
-            else:
-                print(g.ArvoreGeradoraMinima())
         elif i == 11:
-            if g.VerificacoesGrafo("iii"):
-                print ("é euleriano")
-            else:
-                print("não é euleriano")
-            """
-            else:
-                ordem = g.OrdemTopologica()
-                for j in range (len(ordem)):
-                    if j == len(ordem)-1:
-                        print (ordem[j])
-                    else:
-                        print (ordem[j], end=' ')
-            """
+            """CALCULAR O VALOR FINAL DE UMA ÁRVORE GERADORA MÍNIMA (PARA GRAFOS NÃO DIRECIONADOS)"""
         elif i == 12:
-            print ('IMPLEMENTAR')
+            """IMPRIME A ORDEM DOS VERTICES EM UMA ORDENAÇÃO TOPOLÓGICA."""
         elif i == 13:
-            print ('IMPLEMENTAR')
+            """VALOR DO CAMINHO MÍNIMO ENTRE DOIS VÉRTICES (PARA GRAFOS NÃO-ORIENTADOS COM PELO MENOS UM PESO DIFERENTE NAS ARESTAS)"""
         elif i == 14:
-            if not g.direcionado:
-                print (-1)
-            else:
-                fecho = g.FechoTransitivo([], ["N"]*len(g.vertices), [])
-                for j in range (len(fecho)):
-                    if j == len(fecho)-1:
-                        print (fecho[j])
-                    else:
-                        print (fecho[j], end=' ')
+            print(g.FluxoMaximo())
+        elif i == 15:
+            """FECHO TRANSITIVO PARA GRAFOS DIRECIONADOS."""
 
 
     print("=== + FIM + ===")
 
 """
-5
+3
 5 7
 direcionado
 0 0 1 2    
