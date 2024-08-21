@@ -140,10 +140,23 @@ quanto a lista de adjacência."""
 
     """0 - VERIFICAR SE UM GRAFO É CONEXO"""
 
+    def bfsConexo (self, visitado, lista, vertice):
+        fila = [vertice]
+        visitado[vertice] = "A"
+
+        while fila:
+            i = fila.pop(0)
+            for j in lista[i]:
+                if visitado[self.vertices[j[0]]] == "N":
+                    visitado[self.vertices[j[0]]] = "A"
+                    fila.append(j[0])
+            visitado[i] = "V"
+
     def Conexo(self):
         """Verifica se o grafo é conexo (verifica conectividade fraca para grafos direcionados). Retorna 0 para não e 1 para sim."""
         if self.direcionado:
             visitado = ["N"] * len(self.vertices)
+            visitado[0] = "A"
             grafo = {}
             for vertice in self.lista:
                 grafo[vertice] = []
@@ -152,10 +165,11 @@ quanto a lista de adjacência."""
                     grafo[vertice].append((tupla[0], tupla[1]))
                     if self.direcionado:
                         grafo[tupla[0]].append((vertice, tupla[1]))
-            #Não precisa verificar o ciclo, chama a função para aproveitá-la
-            ciclo = 0
-            self.verifica_ciclo(0, ciclo, visitado, [0], grafo, 0)
-            return 1 if all(visitado) else 0
+            self.bfsConexo(visitado, grafo, 0)
+            for i in visitado:
+                if i == "N":
+                    return 0
+            return 1
         else:
             visitado = [False] * len(self.vertices)
             self.dfs(0, visitado)
@@ -394,10 +408,6 @@ quanto a lista de adjacência."""
 
         dfs_aux(0)  #Inicia a DFS a partir do vértice 0
 
-        #Verifica se tem vértices desconectados e ignora eles
-        if "N" in visitado:
-            print("O grafo é desconexo. Considerando apenas a árvore com a raiz 0.")
-
         return listaArestas
     
     """10 - ÁRVORE GERADORA MÍNIMA"""
@@ -509,7 +519,7 @@ quanto a lista de adjacência."""
     def FluxoMaximo(self):
         """Calcula o valor do fluxo máximo de 0 a n-1."""
         if not self.direcionado:
-            return "A função de fluxo máximo só pode ser usada em grafos direcionados."
+            return -1
 
         origem = 0
         destino = len(self.vertices) - 1
