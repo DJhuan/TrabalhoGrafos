@@ -142,18 +142,18 @@ quanto a lista de adjacência."""
     def Conexo(self):
         """Verifica se o grafo é conexo (verifica conectividade fraca para grafos direcionados). Retorna 0 para não e 1 para sim."""
         if self.direcionado:
-            #Verifica a conectividade do grafo original
-            visitado = [False] * len(self.vertices)
-            self.dfs(0, visitado)
-            if not all(visitado):
-                return 0
-
-            #Cria o grafo transposto (invertendo as direções das arestas)
-            grafo_transposto = self.transpor()
-
-            #Verifica a conectividade do grafo transposto
-            visitado = [False] * len(self.vertices)
-            grafo_transposto.dfs(0, visitado)
+            visitado = ["N"] * len(self.vertices)
+            grafo = {}
+            for vertice in self.lista:
+                grafo[vertice] = []
+            for vertice in self.lista:
+                for tupla in self.lista[vertice]:
+                    grafo[vertice].append((tupla[0], tupla[1]))
+                    if self.direcionado:
+                        grafo[tupla[0]].append((vertice, tupla[1]))
+            #Não precisa verificar o ciclo, chama a função para aproveitá-la
+            ciclo = 0
+            self.verifica_ciclo(0, ciclo, visitado, [0], grafo, 0)
             return 1 if all(visitado) else 0
         else:
             visitado = [False] * len(self.vertices)
