@@ -543,41 +543,38 @@ quanto a lista de adjacência."""
 
         return fluxo_maximo
 
-    def Dijkstra(self, verticeInicial):
+    def Dijkstra(self, verticeInicial, verticeFinal):
         distancias = {}
         for key in self.vertices:
             distancias[key] = (False, float('inf'))
-        distancias[verticeInicial] = (True, 0, None)
+    
+        distancias[verticeInicial] = (True, 0)
         fila = []
         fila.append(verticeInicial)
 
         while fila:
             vAtual = fila.pop(0)
+
+            if vAtual == verticeFinal:
+                return distancias[vAtual][1]
+
             for nomeV, distV in self.lista[vAtual]:
                 d = distancias[vAtual][1] + distV
 
                 if not distancias[nomeV][0]:
                     fila.append(nomeV)
-                    distancias[nomeV] = (True, d, vAtual)
+                    distancias[nomeV] = (True, d)
                 elif distancias[nomeV][1] > d:
-                    distancias[nomeV] = (True, d, vAtual)
+                    distancias[nomeV] = (True, d)
 
-        return distancias
+        return -1
 
     def MenorCaminho(self, vIni, vFinal):
-        distancias = self.Dijkstra(vIni)
 
-        try:
-            (_, d, traceback) = distancias[vFinal]
-            caminho = f"{vFinal} (Distancia: {d})"
+        if self.direcionado:
+            return self.Dijkstra(vIni, vFinal)
 
-            while traceback != None:
-                caminho = f"{traceback} -> " + caminho
-                (*_, traceback) = distancias[traceback]
-        except ValueError:
-            return -1
-
-        return caminho
+        return -1
 
     def CaminhoHamiltoniano(self, inicio, direcionado=True):
         """
@@ -802,9 +799,8 @@ if __name__ == "__main__":
                         print (ordem[j])
                     else:
                         print (ordem[j], end=' ')
-
         elif i == 12:
-            """VALOR DO CAMINHO MÍNIMO ENTRE DOIS VÉRTICES (PARA GRAFOS NÃO-ORIENTADOS COM PELO MENOS UM PESO DIFERENTE NAS ARESTAS)"""
+            print(g.MenorCaminho(0, entradas[2]))
         elif i == 13:
             print(g.FluxoMaximo())
         elif i == 14:
@@ -817,7 +813,4 @@ if __name__ == "__main__":
                         print (fecho[j])
                     else:
                         print (fecho[j], end=' ')
-
-
-
 
