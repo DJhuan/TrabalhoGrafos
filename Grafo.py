@@ -1,4 +1,5 @@
 import copy
+import heapq
 
 class Grafo:
     def __init__(self, vertices=[], arestas=[], direcionado=True):
@@ -473,28 +474,26 @@ quanto a lista de adjacência."""
     """12 - CAMINHO MÍNIMO"""
 
     def Dijkstra(self, verticeInicial, verticeFinal):
-        distancias = {}
-        for key in self.vertices:
-            distancias[key] = (False, float('inf'))
+        distancias = {key: (float('inf'), None) for key in self.vertices}
+        distancias[verticeInicial] = (0, None)
     
-        distancias[verticeInicial] = (True, 0)
-        fila = []
-        fila.append(verticeInicial)
+        fila = [(0, verticeInicial)]  # Fila de prioridade com (distância, vértice)
 
         while fila:
-            vAtual = fila.pop(0)
-
+            distAtual, vAtual = heapq.heappop(fila)
+        
+            # Verifica se o vértice atual é o vértice alvo
             if vAtual == verticeFinal:
-                return distancias[vAtual][1]
-
-            for nomeV, distV in self.lista[vAtual]:
-                d = distancias[vAtual][1] + distV
-
-                if not distancias[nomeV][0]:
-                    fila.append(nomeV)
-                    distancias[nomeV] = (True, d)
-                elif distancias[nomeV][1] > d:
-                    distancias[nomeV] = (True, d)
+                return distancias[vAtual][0]
+            
+            # Verifica se esta é a menor distância já encontrada para vAtual
+            if not distAtual > distancias[vAtual][0]:
+                for nomeV, distV in self.lista[vAtual]:
+                    d = distAtual + distV
+                    
+                    if d < distancias[nomeV][0]:
+                        distancias[nomeV] = (d, vAtual)
+                        heapq.heappush(fila, (d, nomeV))
 
         return -1
 
@@ -504,8 +503,6 @@ quanto a lista de adjacência."""
             return self.Dijkstra(vIni, vFinal)
 
         return -1
-
-        return caminho
     
     """13 - FLUXO MÁXIMO"""
 
