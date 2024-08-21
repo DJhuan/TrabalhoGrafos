@@ -1,5 +1,4 @@
-import copy
-import heapq
+import copy, heapq
 
 class Grafo:
     def __init__(self, vertices=[], arestas=[], direcionado=True):
@@ -143,18 +142,18 @@ quanto a lista de adjacência."""
     def Conexo(self):
         """Verifica se o grafo é conexo (verifica conectividade fraca para grafos direcionados). Retorna 0 para não e 1 para sim."""
         if self.direcionado:
-            visitado = ["N"] * len(self.vertices)
-            grafo = {}
-            for vertice in self.lista:
-                grafo[vertice] = []
-            for vertice in self.lista:
-                for tupla in self.lista[vertice]:
-                    grafo[vertice].append((tupla[0], tupla[1]))
-                    if self.direcionado:
-                        grafo[tupla[0]].append((vertice, tupla[1]))
-            #Não precisa verificar o ciclo, chama a função para aproveitá-la
-            ciclo = 0
-            self.verifica_ciclo(0, ciclo, visitado, [0], grafo, 0)
+            #Verifica a conectividade do grafo original
+            visitado = [False] * len(self.vertices)
+            self.dfs(0, visitado)
+            if not all(visitado):
+                return 0
+
+            #Cria o grafo transposto (invertendo as direções das arestas)
+            grafo_transposto = self.transpor()
+
+            #Verifica a conectividade do grafo transposto
+            visitado = [False] * len(self.vertices)
+            grafo_transposto.dfs(0, visitado)
             return 1 if all(visitado) else 0
         else:
             visitado = [False] * len(self.vertices)
@@ -473,37 +472,35 @@ quanto a lista de adjacência."""
     
     """12 - CAMINHO MÍNIMO"""
 
-    def Dijkstra(self, verticeInicial, verticeFinal):
-        distancias = {key: (float('inf'), None) for key in self.vertices}
-        distancias[verticeInicial] = (0, None)
-    
-        fila = [(0, verticeInicial)]  # Fila de prioridade com (distância, vértice)
+    def Dijkstra(self, vInicial, vFinal):
+        if self.direcionado: return -1
 
-        while fila:
-            distAtual, vAtual = heapq.heappop(fila)
-        
-            # Verifica se o vértice atual é o vértice alvo
-            if vAtual == verticeFinal:
-                return distancias[vAtual][0]
-            
-            # Verifica se esta é a menor distância já encontrada para vAtual
-            if not distAtual > distancias[vAtual][0]:
-                for nomeV, distV in self.lista[vAtual]:
-                    d = distAtual + distV
-                    
-                    if d < distancias[nomeV][0]:
-                        distancias[nomeV] = (d, vAtual)
-                        heapq.heappush(fila, (d, nomeV))
+        distancias = [float('inf')] * len(self.vertices)
+        distancias[vInicial] = 0
+        visitados = [False] * len(self.vertices)
+        filaPrioridade = [(0, vInicial)]
 
-        return -1
 
-    def MenorCaminho(self, vIni, vFinal):
+        while filaPrioridade:
+            vAtual = heapq.heappop(filaPrioridade)
+            dist, vert = vAtual
+            if not visitados[vert]:
+                visitados[vert] = True
 
-        if not self.direcionado:
-            return self.Dijkstra(vIni, vFinal)
+                if vert == vFinal:
+                    return distancias[vert]
+
+                for adj in self.lista[vert]:
+                    adj, distb = adj
+                    if not visitados[adj]:
+                        novaDist = distancias[vert] + distb
+                        if novaDist < distancias[adj]:
+                            heapq.heappush(filaPrioridade, (novaDist, adj))
+                            distancias[adj] = novaDist
 
         return -1
-    
+
+
     """13 - FLUXO MÁXIMO"""
 
     def FluxoMaximo(self):
@@ -818,7 +815,7 @@ if __name__ == "__main__":
                     else:
                         print (ordem[j], end=' ')
         elif i == 12:
-            print(g.MenorCaminho(0, entradas[2]))
+            print(g.Dijkstra(0, entradas[2]))
         elif i == 13:
             print(g.FluxoMaximo())
         elif i == 14:
