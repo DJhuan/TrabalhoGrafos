@@ -137,74 +137,109 @@ quanto a lista de adjacência."""
                 if self.vertices[v] > i:
                     self.vertices[v] -= 1
 
-    def ArvoreBFS(self, v=0):
-        """Realiza a busca em largura a partir do vértice v. Retorna os identificadores das arestas."""
-        listaArestas = []
-        visitado = ["N"]*len(self.vertices) #Lista de todos os vértices, que informa o estado atual de cada vértice.
-        #"N": ainda não foi encontrado.
-        #"A": foi encontrado, mas não foi explorado.
-        #"V": foi explorado.
-        fila = [v]
-        visitado[v] = "A"
+    """0 - VERIFICAR SE UM GRAFO É CONEXO"""
 
-        while fila:
-            i = fila.pop(0)
-            for j in self.lista[i]:
-                if visitado[self.vertices[j[0]]] == "N":
-                    visitado[self.vertices[j[0]]] = "A"
-                    fila.append(j[0])
-                    listaArestas.append(self.arestas[i][j[0]])
-            visitado[i] = "V"
+    def Conexo(self):
+        """Verifica se o grafo é conexo (verifica conectividade fraca para grafos direcionados). Retorna 0 para não e 1 para sim."""
+        if self.direcionado:
+            #Verifica a conectividade do grafo original
+            visitado = [False] * len(self.vertices)
+            self.dfs(0, visitado)
+            if not all(visitado):
+                return 0
 
-        return listaArestas
+            #Cria o grafo transposto (invertendo as direções das arestas)
+            grafo_transposto = self.transpor()
 
-    def ArvoreDFS(self):
-        """Realiza a busca em profundidade a partir do vértice 0. Retorna os identificadores das arestas."""
-        listaArestas = []
-        visitado = ["N"] * len(self.vertices)  #Lista de todos os vértices, que informa o estado atual de cada vértice.
-        #"N": ainda não foi encontrado.
-        #"A": foi encontrado, mas não foi explorado.
-        #"V": foi explorado.
+            #Verifica a conectividade do grafo transposto
+            visitado = [False] * len(self.vertices)
+            grafo_transposto.dfs(0, visitado)
+            return 1 if all(visitado) else 0
+        else:
+            visitado = [False] * len(self.vertices)
+            self.dfs(0, visitado)
+            return 1 if all(visitado) else 0
+        
+    """1 - VERIFICAR SE O GRAFO É BIPARTIDO"""
 
-        def dfs_aux(v):
-            visitado[v] = "A"
-            for u, _ in sorted(self.lista[v]):
-                if visitado[self.vertices[u]] == "N":
-                    listaArestas.append(self.arestas[v][u])
-                    dfs_aux(u)
-            visitado[v] = "V"
+    def Bipartido(self):
+        """Verifica se o grafo não-orientado é bipartido. Retorna 0 para não e 1 para sim."""
+        cor = [-1] * len(self.vertices)
+        fila = []
 
-        dfs_aux(0)  #Inicia a DFS a partir do vértice 0
+        for inicio in range(len(self.vertices)):
+            if cor[inicio] == -1:
+                cor[inicio] = 1
+                fila.append(inicio)
 
-        #Verifica se tem vértices desconectados e ignora eles
-        if "N" in visitado:
-            print("O grafo é desconexo. Considerando apenas a árvore com a raiz 0.")
+                while fila:
+                    u = fila.pop(0)
+                    for v in range(len(self.vertices)):
+                        if self.matriz[u][v] is not None:
+                            if cor[v] == -1:
+                                cor[v] = 1 - cor[u]
+                                fila.append(v)
+                            elif cor[v] == cor[u]:
+                                return 0
+        return 1
+    
+    """2 - VERIFICAR SE O GRAFO É EULERIANO"""
 
-        return listaArestas
+    def Euleriano(self):
+        """Verifica se o grafo é euleriano. Retorna 0 para não e 1 para sim."""
+        if self.direcionado:
+            #Verifica se é fortemente conexo
+            if self.CompFortementeCnx() != 1:
+                return 0
+            #Verifica se o numero de arestas de entrada é igual ao de saída para cada vertice
+            for vertice in self.vertices:
+                grau_entrada = sum(1 for i in range(len(self.vertices)) if self.matriz[i][vertice] is not None)
+                grau_saida = sum(1 for i in range(len(self.vertices)) if self.matriz[vertice][i] is not None)
+                if grau_entrada != grau_saida:
+                    return 0
+            return 1
+        else:
+            #Verifica se é conexo
+            visitado = [False] * len(self.vertices)
+            self.dfs(0, visitado)
+            if not all(visitado):
+                return 0
+            #Verifica se todos os vértices tem grau par
+            for vertice in self.vertices:
+                grau = sum(1 for i in range(len(self.vertices)) if self.matriz[vertice][i] is not None or self.matriz[i][vertice] is not None)
+                if grau % 2 != 0:
+                    return 0
+            return 1
+        
+    """3 - VERIFICAR SE O GRAFO POSSUI CICLOS"""
 
-    def dfsOrdemTop (self, listaExecucao, visitado, v):
-        for j in self.lista[v]:
-            if visitado[j[0]] == "N":
-                visitado[j[0]] = "A"
-                listaExecucao = self.dfsOrdemTop(listaExecucao, visitado, j[0])
-        visitado[v] = "V"
-        if listaExecucao == -1:
-            return -1
-        listaExecucao.append(v)
-        return listaExecucao
-
-    def OrdemTopologica(self, listaExecucao, visitado):
-        """Argoritmo DFS. Retorna uma possibilidade de ordem de execução"""
-        for i in self.vertices:
-            if visitado[i] == "N":
-                visitado[i] = "A"
-                listaExecucao = self.dfsOrdemTop(listaExecucao, visitado, i)
-
-        if listaExecucao == -1:
-            return [-1]
-        listaExecucao.reverse()
-        return listaExecucao
-
+    def TemCiclo(self):
+        """Verifica se o grafo tem ciclos. Retorna 0 para não e 1 pra sim."""
+        if self.direcionado:
+                visitado = ["N"] * len(self.vertices)
+                pilha = []
+                for vertice in self.lista:
+                    if visitado[self.vertices[vertice]] == "N":
+                        pilha.append(vertice)
+                        visitado[self.vertices[vertice]] = "A"
+                        if self.verifica_ciclo(vertice, False, visitado, pilha, self.lista, self.direcionado):
+                            return 1
+                return 0
+        else:
+            for i in range(len(self.vertices)):
+                if self.matriz[i][i] is not None:
+                    return 1
+            visitado = ["N"] * len(self.vertices)
+            pilha = []
+            for vertice in self.lista:
+                if visitado[self.vertices[vertice]] == "N":
+                    pilha.append(vertice)
+                    visitado[self.vertices[vertice]] = "A"
+                    if self.verifica_ciclo(vertice, False, visitado, pilha, self.lista, self.direcionado):
+                        return 1
+            return 0
+        
+    """4 - CALCULAR A QUANTIDADE DE COMPONENTES CONEXAS"""
 
     def CompConexos(self):
         """Retorna a quantidade de componentes conexos do grafo"""
@@ -224,6 +259,8 @@ quanto a lista de adjacência."""
                 componentes += 1
                 
         return componentes
+    
+    """5 - CALCULAR A QUANTIDADE DE COMPONENTES FORTEMENTE CONEXAS"""
 
     def CompFortementeCnx(self):
         """Conta quantas componentes fortemente conexas há no grafo."""
@@ -246,77 +283,8 @@ quanto a lista de adjacência."""
         componentes_conexas = gTransposto._temporizarReversa(tempos_fechamento)
         del gTransposto
         return len(componentes_conexas)
-
-    def CicloArvoreGeradora(self, lista):
-        """Transforma o grafo direcionado em não direcionado e verifica o ciclo."""
-        arvore = {}
-        for vertice in lista:
-            arvore[vertice] = []
-        for vertice in lista:
-            for tupla in lista[vertice]:
-                arvore[vertice].append((tupla[0], tupla[1]))
-                if self.direcionado:
-                    arvore[tupla[0]].append((vertice, tupla[1]))
-        ciclo = False
-        visitado = ["N"]*len(self.vertices)
-        pilha = []
-        for vertice in arvore:
-            if visitado[vertice] == "N":
-                pilha.append(vertice)
-                visitado[vertice] = "A"
-                ciclo = self.verifica_ciclo(vertice, ciclo, visitado, pilha, arvore, 0)
-
-        return ciclo
-
-    def ArvoreGeradoraMinima (self):
-        listaArestas = [] #configuração: (valor, v1, v2)
-        for i in range(len(self.matriz)):
-            for j in range(len(self.matriz[i])):
-                if i < j and self.matriz[i][j] != None: #Retira os loops e arestas repetidas
-                    listaArestas.append ((self.matriz[i][j],i,j))
-        listaArestas.sort()
-
-        arvore = {}
-        valor = 0
-        for vertice in self.lista:
-            arvore[vertice] = []
-
-        quantidade = 0
-        cont = 0
-        qtArestas = len(listaArestas)
-        while quantidade < len(self.vertices)-1 and cont < qtArestas:
-            cont = cont+1
-            aresta = listaArestas.pop(0)
-
-            arvore[aresta[1]].append((aresta[2], aresta[0]))
-            arvore[aresta[2]].append((aresta[1], aresta[0]))
-
-            if self.CicloArvoreGeradora(arvore):
-                arvore[aresta[1]].remove((aresta[2], aresta[0]))
-                arvore[aresta[2]].remove((aresta[1], aresta[0]))
-            else:
-                quantidade = quantidade+1
-                valor += aresta[0]
-
-        return valor
-
-    def verifica_ciclo(self, pai, ciclo, visitado, pilha, lista, direcionado):
-        """Usa DFS para verificação de ciclo. Se chegar em um vértice que já foi encontrado, mas não explorado, há um ciclo."""
-        ultimo = len(pilha)-1
-        i = pilha[ultimo]
-        for j in lista[i]:
-            if visitado[j[0]] == "N":
-                visitado[j[0]] = "A"
-                pilha.append(j[0])
-                ciclo = self.verifica_ciclo(i, ciclo, visitado, pilha, lista, direcionado)
-            elif visitado[j[0]] == "A" and j[0] != pai:
-                return True
-            elif direcionado and visitado[j[0]] == "A": #Se for direcionado e tiver um caminho para o pai, há um ciclo.
-                return True
-        visitado[i] = "V"
-        ultimo = len(pilha)-1
-        pilha.pop(ultimo)
-        return ciclo
+    
+    """6 E 7 - VÉRTICES DE ARTICULAÇÃO E ARESTAS PONTE"""
 
     def TarjanA(self, vertice, visitado, low, tempoD, pai, arestasPonte, tempo):
         """Aplica o método de Tarjan para encontrar arestas ponte"""
@@ -381,167 +349,128 @@ quanto a lista de adjacência."""
 
             verticesArtic.sort()
             return verticesArtic
-
-
-    def dfs(self, vertice, visitado):
-        """Função de busca em profundidade (DFS) para percorrer o grafo."""
-
-        visitado[vertice] = True
-
-        #Percorre todos os vértices adjacentes ao vértice atual
-        for i in range(len(self.vertices)):
-            if self.matriz[vertice][i] is not None and not visitado[i]:
-                self.dfs(i, visitado)  #Recursivamente visita os vértices adjacentes
-
-    def Conexo(self):
-        """Verifica se o grafo é conexo (verifica conectividade fraca para grafos direcionados). Retorna 0 para não e 1 para sim."""
-        if self.direcionado:
-            #Verifica a conectividade do grafo original
-            visitado = [False] * len(self.vertices)
-            self.dfs(0, visitado)
-            if not all(visitado):
-                return 0
-
-            #Cria o grafo transposto (invertendo as direções das arestas)
-            grafo_transposto = self.transpor()
-
-            #Verifica a conectividade do grafo transposto
-            visitado = [False] * len(self.vertices)
-            grafo_transposto.dfs(0, visitado)
-            return 1 if all(visitado) else 0
-        else:
-            visitado = [False] * len(self.vertices)
-            self.dfs(0, visitado)
-            return 1 if all(visitado) else 0
-
-    def transpor(self): #Chamada na função 'Conexo'
-        grafo_transposto = Grafo(vertices=self.vertices, direcionado=self.direcionado)
-
-        for v in self.vertices:
-            for (adj, peso) in self.lista[v]:
-                grafo_transposto.AdicionarArestas(self.arestas[v][adj], adj, v, peso)
-
-        return grafo_transposto
-
-    def Bipartido(self):
-        """Verifica se o grafo não-orientado é bipartido. Retorna 0 para não e 1 para sim."""
-        cor = [-1] * len(self.vertices)
-        fila = []
-
-        for inicio in range(len(self.vertices)):
-            if cor[inicio] == -1:
-                cor[inicio] = 1
-                fila.append(inicio)
-
-                while fila:
-                    u = fila.pop(0)
-                    for v in range(len(self.vertices)):
-                        if self.matriz[u][v] is not None:
-                            if cor[v] == -1:
-                                cor[v] = 1 - cor[u]
-                                fila.append(v)
-                            elif cor[v] == cor[u]:
-                                return 0
-        return 1
-
-    def Euleriano(self):
-        """Verifica se o grafo é euleriano. Retorna 0 para não e 1 para sim."""
-        if self.direcionado:
-            #Verifica se é fortemente conexo
-            if self.CompFortementeCnx() != 1:
-                return 0
-            #Verifica se o numero de arestas de entrada é igual ao de saída para cada vertice
-            for vertice in self.vertices:
-                grau_entrada = sum(1 for i in range(len(self.vertices)) if self.matriz[i][vertice] is not None)
-                grau_saida = sum(1 for i in range(len(self.vertices)) if self.matriz[vertice][i] is not None)
-                if grau_entrada != grau_saida:
-                    return 0
-            return 1
-        else:
-            #Verifica se é conexo
-            visitado = [False] * len(self.vertices)
-            self.dfs(0, visitado)
-            if not all(visitado):
-                return 0
-            #Verifica se todos os vértices tem grau par
-            for vertice in self.vertices:
-                grau = sum(1 for i in range(len(self.vertices)) if self.matriz[vertice][i] is not None or self.matriz[i][vertice] is not None)
-                if grau % 2 != 0:
-                    return 0
-            return 1
-
-    def TemCiclo(self):
-        """Verifica se o grafo tem ciclos. Retorna 0 para não e 1 pra sim."""
-        if self.direcionado:
-                visitado = ["N"] * len(self.vertices)
-                pilha = []
-                for vertice in self.lista:
-                    if visitado[self.vertices[vertice]] == "N":
-                        pilha.append(vertice)
-                        visitado[self.vertices[vertice]] = "A"
-                        if self.verifica_ciclo(vertice, False, visitado, pilha, self.lista, self.direcionado):
-                            return 1
-                return 0
-        else:
-            for i in range(len(self.vertices)):
-                if self.matriz[i][i] is not None:
-                    return 1
-            visitado = ["N"] * len(self.vertices)
-            pilha = []
-            for vertice in self.lista:
-                if visitado[self.vertices[vertice]] == "N":
-                    pilha.append(vertice)
-                    visitado[self.vertices[vertice]] = "A"
-                    if self.verifica_ciclo(vertice, False, visitado, pilha, self.lista, self.direcionado):
-                        return 1
-            return 0
-
-    def bfs(self, origem, destino, pai):
-        """Realiza uma busca em largura (BFS) para encontrar um caminho aumentante"""
-        visitado = [False] * len(self.vertices)
-        fila = [origem]
-        visitado[origem] = True
+        
+    """8 - ÁRVORE EM PROFUNDIDADE"""
+        
+    def ArvoreBFS(self, v=0):
+        """Realiza a busca em largura a partir do vértice 0. Retorna os identificadores das arestas."""
+        listaArestas = []
+        visitado = ["N"]*len(self.vertices) #Lista de todos os vértices, que informa o estado atual de cada vértice.
+        #"N": ainda não foi encontrado.
+        #"A": foi encontrado, mas não foi explorado.
+        #"V": foi explorado.
+        fila = [v]
+        visitado[v] = "A"
 
         while fila:
-            u = fila.pop(0)
+            i = fila.pop(0)
+            for j in self.lista[i]:
+                if visitado[self.vertices[j[0]]] == "N":
+                    visitado[self.vertices[j[0]]] = "A"
+                    fila.append(j[0])
+                    listaArestas.append(self.arestas[i][j[0]])
+            visitado[i] = "V"
 
-            for indice, valor in enumerate(self.matriz[u]):
-                if visitado[indice] == False and valor is not None and valor > 0:
-                    fila.append(indice)
-                    visitado[indice] = True
-                    pai[indice] = u
+        return listaArestas
+    
+    """9 - ÁRVORE DE LARGURA"""
 
-        return visitado[destino]
+    def ArvoreDFS(self):
+        """Realiza a busca em profundidade a partir do vértice 0. Retorna os identificadores das arestas."""
+        listaArestas = []
+        visitado = ["N"] * len(self.vertices)  #Lista de todos os vértices, que informa o estado atual de cada vértice.
+        #"N": ainda não foi encontrado.
+        #"A": foi encontrado, mas não foi explorado.
+        #"V": foi explorado.
 
-    def FluxoMaximo(self):
-        """Calcula o valor do fluxo máximo de 0 a n-1."""
-        if not self.direcionado:
-            return "A função de fluxo máximo só pode ser usada em grafos direcionados."
+        def dfs_aux(v):
+            visitado[v] = "A"
+            for u, _ in sorted(self.lista[v]):
+                if visitado[self.vertices[u]] == "N":
+                    listaArestas.append(self.arestas[v][u])
+                    dfs_aux(u)
+            visitado[v] = "V"
 
-        origem = 0
-        destino = len(self.vertices) - 1
-        pai = [-1] * len(self.vertices)
-        fluxo_maximo = 0
+        dfs_aux(0)  #Inicia a DFS a partir do vértice 0
 
-        while self.bfs(origem, destino, pai):
-            fluxo_caminho = float('Inf')
-            s = destino
-            while s != origem:
-                fluxo_caminho = min(fluxo_caminho, self.matriz[pai[s]][s] if self.matriz[pai[s]][s] is not None else 0)
-                s = pai[s]
-            fluxo_maximo += fluxo_caminho
-            v = destino
-            while v != origem:
-                u = pai[v]
-                if self.matriz[u][v] is None:
-                    self.matriz[u][v] = 0
-                if self.matriz[v][u] is None:
-                    self.matriz[v][u] = 0
-                self.matriz[u][v] -= fluxo_caminho
-                self.matriz[v][u] += fluxo_caminho
-                v = pai[v]
+        #Verifica se tem vértices desconectados e ignora eles
+        if "N" in visitado:
+            print("O grafo é desconexo. Considerando apenas a árvore com a raiz 0.")
 
-        return fluxo_maximo
+        return listaArestas
+    
+    """10 - ÁRVORE GERADORA MÍNIMA"""
+
+    def CicloArvoreGeradora(self, lista):
+        "Chama a função de verificar o ciclo para cada vértice não visitado do estado atual da AGM"
+        ciclo = False
+        visitado = ["N"]*len(self.vertices)
+        pilha = []
+        for vertice in lista:
+            if visitado[vertice] == "N":
+                pilha.append(vertice)
+                visitado[vertice] = "A"
+                ciclo = self.verifica_ciclo(vertice, ciclo, visitado, pilha, lista, 0)
+
+        return ciclo
+
+    def ArvoreGeradoraMinima (self):
+        "Cria uma lista de arestas, ordenadas de forma crescente pelo valor, e adiciona uma de cada vez, verificando se forma ciclo"
+        listaArestas = [] #configuração: (valor, v1, v2)
+        for i in range(len(self.matriz)):
+            for j in range(len(self.matriz[i])):
+                if i < j and self.matriz[i][j] != None: #Retira os loops e arestas repetidas
+                    listaArestas.append ((self.matriz[i][j],i,j))
+        listaArestas.sort()
+
+        arvore = {}
+        valor = 0
+        for vertice in self.lista:
+            arvore[vertice] = []
+
+        quantidade = 0
+        cont = 0
+        qtArestas = len(listaArestas)
+        while quantidade < len(self.vertices)-1 and cont < qtArestas:
+            cont = cont+1
+            aresta = listaArestas.pop(0)
+
+            arvore[aresta[1]].append((aresta[2], aresta[0]))
+            arvore[aresta[2]].append((aresta[1], aresta[0]))
+
+            if self.CicloArvoreGeradora(arvore):
+                arvore[aresta[1]].remove((aresta[2], aresta[0]))
+                arvore[aresta[2]].remove((aresta[1], aresta[0]))
+            else:
+                quantidade = quantidade+1
+                valor += aresta[0]
+
+        return valor
+    
+    """11 - ORDEM TOPOLÓGICA"""
+
+    def dfsOrdemTop (self, listaExecucao, visitado, v):
+        "Realiza a busca em largura e atualiza a lista de execução"
+        for j in self.lista[v]:
+            if visitado[j[0]] == "N":
+                visitado[j[0]] = "A"
+                listaExecucao = self.dfsOrdemTop(listaExecucao, visitado, j[0])
+        visitado[v] = "V"
+        listaExecucao.append(v)
+        return listaExecucao
+
+    def OrdemTopologica(self, listaExecucao, visitado):
+        """Argoritmo DFS. Retorna uma possibilidade de ordem de execução"""
+        """Chama o algoritmo para cada vértice não visitado"""
+        for i in self.vertices:
+            if visitado[i] == "N":
+                visitado[i] = "A"
+                listaExecucao = self.dfsOrdemTop(listaExecucao, visitado, i)
+
+        listaExecucao.reverse()
+        return listaExecucao
+    
+    """12 - CAMINHO MÍNIMO"""
 
     def Dijkstra(self, verticeInicial):
         distancias = {}
@@ -578,6 +507,79 @@ quanto a lista de adjacência."""
             return -1
 
         return caminho
+    
+    """13 - FLUXO MÁXIMO"""
+
+    def FluxoMaximo(self):
+        """Calcula o valor do fluxo máximo de 0 a n-1."""
+        if not self.direcionado:
+            return "A função de fluxo máximo só pode ser usada em grafos direcionados."
+
+        origem = 0
+        destino = len(self.vertices) - 1
+        pai = [-1] * len(self.vertices)
+        fluxo_maximo = 0
+
+        while self.bfs(origem, destino, pai):
+            fluxo_caminho = float('Inf')
+            s = destino
+            while s != origem:
+                fluxo_caminho = min(fluxo_caminho, self.matriz[pai[s]][s] if self.matriz[pai[s]][s] is not None else 0)
+                s = pai[s]
+            fluxo_maximo += fluxo_caminho
+            v = destino
+            while v != origem:
+                u = pai[v]
+                if self.matriz[u][v] is None:
+                    self.matriz[u][v] = 0
+                if self.matriz[v][u] is None:
+                    self.matriz[v][u] = 0
+                self.matriz[u][v] -= fluxo_caminho
+                self.matriz[v][u] += fluxo_caminho
+                v = pai[v]
+
+        return fluxo_maximo
+    
+    """14 - FECHO TRANSITIVO"""
+
+    def FechoTransitivo(self, pilha, visitado, listaVertices):
+        #"N": ainda não foi encontrado.
+        #"A": foi encontrado, mas não foi explorado.
+        #"V": foi explorado.
+        visitado[0] = "A"
+        pilha.append(0)
+        while pilha:
+            t = len(pilha)-1
+            i = pilha.pop(t)
+            for j in self.lista[i]:
+                if visitado[self.vertices[j[0]]] == "N":
+                    visitado[self.vertices[j[0]]] = "A"
+                    pilha.append(j[0])
+                    listaVertices.append(j[0])
+                    listaVertices = self.FechoTransitivo(pilha, visitado, listaVertices)
+            visitado[i] = "V"
+
+        return listaVertices
+    
+    """FUNÇÕES AUXILIARES"""
+
+    def bfs(self, origem, destino, pai):
+        """Realiza uma busca em largura (BFS) para encontrar um caminho aumentante"""
+        visitado = [False] * len(self.vertices)
+        fila = [origem]
+        visitado[origem] = True
+
+        while fila:
+            u = fila.pop(0)
+
+            for indice, valor in enumerate(self.matriz[u]):
+                if visitado[indice] == False and valor is not None and valor > 0:
+                    fila.append(indice)
+                    visitado[indice] = True
+                    pai[indice] = u
+
+        return visitado[destino]
+
 
     def CaminhoHamiltoniano(self, inicio, direcionado=True):
         """
@@ -612,25 +614,6 @@ quanto a lista de adjacência."""
                     pilha.append((i, novo_caminho, novos_visitados))
 
         return None  #Retorna None se nenhum caminho hamiltoniano foi encontrado
-
-    def FechoTransitivo(self, pilha, visitado, listaVertices):
-        #"N": ainda não foi encontrado.
-        #"A": foi encontrado, mas não foi explorado.
-        #"V": foi explorado.
-        visitado[0] = "A"
-        pilha.append(0)
-        while pilha:
-            t = len(pilha)-1
-            i = pilha.pop(t)
-            for j in self.lista[i]:
-                if visitado[self.vertices[j[0]]] == "N":
-                    visitado[self.vertices[j[0]]] = "A"
-                    pilha.append(j[0])
-                    listaVertices.append(j[0])
-                    listaVertices = self.FechoTransitivo(pilha, visitado, listaVertices)
-            visitado[i] = "V"
-
-        return listaVertices
 
     def _dfs(self, v_ini, tempo=1, tempos=[], visitados=set()):
         a_explorar = [v_ini]
@@ -698,6 +681,44 @@ quanto a lista de adjacência."""
 
         self.lista = lista_invertida
 
+    def dfs(self, vertice, visitado):
+        """Função de busca em profundidade (DFS) para percorrer o grafo."""
+
+        visitado[vertice] = True
+
+        #Percorre todos os vértices adjacentes ao vértice atual
+        for i in range(len(self.vertices)):
+            if self.matriz[vertice][i] is not None and not visitado[i]:
+                self.dfs(i, visitado)  #Recursivamente visita os vértices adjacentes
+
+
+    def transpor(self): #Chamada na função 'Conexo'
+        grafo_transposto = Grafo(vertices=self.vertices, direcionado=self.direcionado)
+
+        for v in self.vertices:
+            for (adj, peso) in self.lista[v]:
+                grafo_transposto.AdicionarArestas(self.arestas[v][adj], adj, v, peso)
+
+        return grafo_transposto
+    
+    def verifica_ciclo(self, pai, ciclo, visitado, pilha, lista, direcionado):
+        """Usa DFS para verificação de ciclo. Se chegar em um vértice que já foi encontrado, mas não explorado, há um ciclo."""
+        ultimo = len(pilha)-1
+        i = pilha[ultimo]
+        for j in lista[i]:
+            if visitado[j[0]] == "N":
+                visitado[j[0]] = "A"
+                pilha.append(j[0])
+                ciclo = self.verifica_ciclo(i, ciclo, visitado, pilha, lista, direcionado)
+            elif visitado[j[0]] == "A" and j[0] != pai:
+                return True
+            elif direcionado and visitado[j[0]] == "A": #Se for direcionado e tiver um caminho para o pai, há um ciclo.
+                return True
+        visitado[i] = "V"
+        ultimo = len(pilha)-1
+        pilha.pop(ultimo)
+        return ciclo
+
     @staticmethod
     def conexosParaString(listasDeConexos):
         """Transforma uma lista de componentes conexos em uma grande string paresentável ao usuário"""
@@ -708,6 +729,8 @@ quanto a lista de adjacência."""
             saida += " "
 
         return saida
+        
+    
 
 class PropriedadesIncompativeis(Exception):
     def __init__(self, message):
@@ -751,13 +774,9 @@ if __name__ == "__main__":
         elif i == 7:
             if g.direcionado:
                 print ("-1")
-            else:
+            else: 
                 arestas = g.Cortes(1)
-                for j in range(len(arestas)):
-                    if j == len(arestas) - 1:
-                        print(arestas[j])
-                    else:
-                        print(arestas[j], end=' ')
+                print (len(arestas))
 
         elif i == 8:
             arvore_dfs = g.ArvoreDFS()
