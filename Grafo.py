@@ -500,7 +500,7 @@ quanto a lista de adjacência."""
 
     def MenorCaminho(self, vIni, vFinal):
 
-        if self.direcionado:
+        if not self.direcionado:
             return self.Dijkstra(vIni, vFinal)
 
         return -1
