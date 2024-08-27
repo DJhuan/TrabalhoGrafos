@@ -94,6 +94,19 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
     Finalmente, o retorno é dado pelo tamanho do vetor armazenado em 'componentes_conexas'.
 
+#### Métodos auxiliares
+
+- `_temporizar`: atribui um tempo de fechamento para cada vértice do grafo baseado numa exploração por profundidade.
+  - Recebe: nada
+  - Retorna: um vetor com tuplas no formato (tempo_de_fechamento, vértice)
+  - Funcionamento
+  
+    Para cada vértice não visitado no grafo, inicia uma busca em profundidade.
+
+    O método alimenta, a cada iteração, a busca em profundidade com o vértice a ser explorado, o último tempo de fechamento usado e os vértices já visitados.
+
+    Ao fim, retorna um vetor de tuplas no formato (tempo_de_fechamento, vértice).
+
 - `nomedometodo`: descrição do que o método faz pela classe.
   - Recebe: o que é passado para o método
   - Retorna: o que o método retorna.
