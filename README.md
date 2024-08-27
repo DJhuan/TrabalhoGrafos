@@ -96,11 +96,37 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
 #### Métodos auxiliares
 
+- `_dfs`: função de busca em profundidade planejada para marcar o tempo de exploração de cada vértice.
+  - Recebe:
+    - ```v_ini```: vérice que inicia a busca.
+    - ```tempo```: último tempo marcado.
+    - ```tempos```: vetor de tuplas (tempo_de_fechamento, vértice).
+  - Retorna:
+    - ```tempos```: mesmo que acima.
+    - ```tempo```: último tempo marcado.
+    - ```visitados```: set de vértices já visitados.
+  - Funcionamento
+
+    Uma pilha 'a_explorar' manterá os vértices a sereme explorados na DFS. Iniciamos ela já com o vértice inical.
+
+    Enquanto houver vértices na pilha:
+
+    Buscamos o vértive no topo da pilhae, 'v_atual', e:
+
+    1 - Se ele não tiver sido visitado, dizemos que ele foi visitado e somamos 1 no tempo.
+
+    Depois, para cada filho do v_atual não explorado, colocamos ele na fila de exploração, e dizemos que houve uma exploração de um vértice novo.
+
+    No caso de não houver a exploração de um vértice novo, adicionamos no vetor de tempos de fechamento uma tupla composta por ('tempo', 'v_atual'), somamos mais 1 no tempo, e removemos o topo da pilha.
+
+    2 - Se o vértice que está no topo da pilha já tiver sido visitado, adicionamos uma nova tupla ('tempo', 'v_atual') ao vetor tempos, somamos 1 no tempo e removemos o item do topo da lista.
+
+    Ao fim, retorna-se os tempos de fechamento, o último tempo registrado e os vértices já visitados.
+  
 - `_temporizar`: atribui um tempo de fechamento para cada vértice do grafo baseado numa exploração por profundidade.
   - Recebe: nada
   - Retorna: um vetor com tuplas no formato (tempo_de_fechamento, vértice)
   - Funcionamento
-
 
     Para cada vértice não visitado no grafo, inicia uma busca em profundidade.
 
