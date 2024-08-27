@@ -101,6 +101,7 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
   - Retorna: um vetor com tuplas no formato (tempo_de_fechamento, vértice)
   - Funcionamento
 
+
     Para cada vértice não visitado no grafo, inicia uma busca em profundidade.
 
     O método alimenta, a cada iteração, a busca em profundidade com o vértice a ser explorado, o último tempo de fechamento usado e os vértices já visitados.
