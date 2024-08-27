@@ -75,6 +75,25 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
     - `vertice`: nome do vértice removido.
   - Retorna: nada.
 
+- `CompFortementeCnx`: encontra a quantidade de componentes formetmente conexas no grafo.
+  - Recebe: nada
+  - Retorna: número de componentes fortemente conexas.
+  - Funcionamento
+
+    Bbaseado no algoritmo de Kosaraju para componentes fortemente conexas.
+
+    O método foi planejado para funcionar com grafos direcionados, portanto retornará -1 se essa exigência não for atendida
+
+    Uma variável chamada tempos_fechamento irá guardar em um vetor várias tuplas no formato (tempo_de_fechamento, vértice). Esse vetor é gerado pelo método auxiliar '_temporizar()'.
+
+    A fim de garantir que os tempos de fechamento estarão ordenados, o método sort (da própria linguagem) é chamado para ordenar em ordem crescente, levando em consideração somente o primeiro elemento das tuplas, ou seja, o tempo de fechamento.
+
+    Continuando o algoritmo, criamos uma cópia do grafo atual e invertemos os seus arcos, de modo que agora obtemos um grafo transposto.
+
+    As componentes conexas, agora, são obtidas a partir do resultado do método '_temporizarReversa()', chamada a partir do grafo transposto, utilizando os tempos de fechamento como parâmetro. A variável 'componentes_conexas' armazena um vetor de vetores. Esses vetores contém os vértices que participam de um componente.
+
+    Finalmente, o retorno é dado pelo tamanho do vetor armazenado em 'componentes_conexas'.
+
 - `nomedometodo`: descrição do que o método faz pela classe.
   - Recebe: o que é passado para o método
   - Retorna: o que o método retorna.
