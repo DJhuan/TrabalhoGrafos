@@ -738,12 +738,7 @@ quanto a lista de adjacência."""
             saida += " "
 
         return saida
-        
-    
 
-class PropriedadesIncompativeis(Exception):
-    def __init__(self, message):
-        super().__init__(message)
 
 if __name__ == "__main__":
     funcoes = list(map(int, input().split()))
