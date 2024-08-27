@@ -100,12 +100,23 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
   - Recebe: nada
   - Retorna: um vetor com tuplas no formato (tempo_de_fechamento, vértice)
   - Funcionamento
-  
+
     Para cada vértice não visitado no grafo, inicia uma busca em profundidade.
 
     O método alimenta, a cada iteração, a busca em profundidade com o vértice a ser explorado, o último tempo de fechamento usado e os vértices já visitados.
 
     Ao fim, retorna um vetor de tuplas no formato (tempo_de_fechamento, vértice).
+
+- `_temporizarReversa`: funcionamento semelhante ao método '_temporizar()', mas o critério para exploração dos vértices é diferente.
+  - Recebe: um vetor de tuplas (tempo_de_fechamento, vértice).
+  - Retorna: um vetor com um componente fortemente conexo.
+  - Funcionamento:
+
+    Semelhante ao método '_temporizar()', ambém inicia uma busca em profundidade por todos os vértices ainda não visitados, todavia, aqui levamos em consideração uma ordem de como os vértices serão explorados.
+
+    A ordem é determinada pelo argumento 'tempo_decresc', que será iterado reversamente. Aqui, espera-se uma lista de tuplas (tempo_de_fechamento, vértice), ordenada crescentemente em relação ao primeiro parâmetro.
+
+    Outra diferença é que esse método não se importa mais em marcar o tempo de maneira correta, ou então de atualizar o vetor 'tempos' durante as iterações, isso porque o que será retornado pela função '_dfs()' já será um componente fortemente conexo, então esse componente é adicionado diretamente na variável 'tempos', que é retornada ao fim da execução do método.
 
 - `nomedometodo`: descrição do que o método faz pela classe.
   - Recebe: o que é passado para o método
