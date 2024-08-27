@@ -75,12 +75,23 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
     - `vertice`: nome do vértice removido.
   - Retorna: nada.
 
+- `CompConexos`: Calcula o número de componentes conexos em um grafo não direcionado.
+  - Recebe: nada.
+  - Retorna: número de componentes conexos do grafo.
+  - Funcionamento
+
+    Como o funcionamento do algoritmo depende do grafo ser não orientado, o método retorna -1 caso a condição não seja satisfeita.
+
+    O algoritmo itera por todos os vértices do grafo e inicia uma busca em profundidade usando o método auxiliar '_dfs()' para todos os vértices que ainda não foram visitados. Todos os vértices descobertos durante a busca são varcados como visitados e 1 é somado ao número de componentes.
+
+    Ao fim, o número de componentes é retornado.
+
 - `CompFortementeCnx`: encontra a quantidade de componentes formetmente conexas no grafo.
   - Recebe: nada
   - Retorna: número de componentes fortemente conexas.
   - Funcionamento
 
-    Bbaseado no algoritmo de Kosaraju para componentes fortemente conexas.
+    Baseado no algoritmo de Kosaraju para componentes fortemente conexas.
 
     O método foi planejado para funcionar com grafos direcionados, portanto retornará -1 se essa exigência não for atendida
 
