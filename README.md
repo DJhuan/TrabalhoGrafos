@@ -212,6 +212,23 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
 #### Métodos auxiliares
 
+- `bfs`: busca por um vértice utilizando a busca em largura, mantendo também o caminho para chegar até ele.
+  - Recebe:
+    - `origem`: vértice de origem.
+    - `destino`: vértice de destino.
+    - `pai`: vetor com os pais dos vértices (ordem de visitação).
+  - Retorna: booleano que indica se foi possível encontrar o vértice de destino.
+  - Funcionamento:
+
+    Declara uma fila que mantém a ordem de exploração dos vértices e um vetor para verificar quem foi visitado. O vértice inicial é imediatamente marcado como visitado.
+
+    Enquanto houver itens na fila:
+
+    Buscamos pelo primeiro item, e iteramos sobre a linha da matriz de adjacência que representa as arestas desse vértice.
+    Caso a aresta exista, seu valor seja maior que zero e o filho ainda não tenha sido visitado: adicionamos o filho na fila, marcamos que ele foi visitado e atualizamos o vetor de pais, dizendo que o vértice aos quais os filhos estamos explorando é pai do filho marcado como visitado.
+
+    Ao fim, retornamos se o filho foi visitado.
+
 - `bfsConexo`: busca em largura para verificar se um grafo é conexo.
   - Recebe:
     `visitado`: vetor de vértices visitados.
@@ -281,6 +298,10 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
     Outra diferença é que esse método não se importa mais em marcar o tempo de maneira correta, ou então de atualizar o vetor 'tempos' durante as iterações, isso porque o que será retornado pela função '_dfs()' já será um componente fortemente conexo, então esse componente é adicionado diretamente na variável 'tempos', que é retornada ao fim da execução do método.
 
+- `_inverterArcos`: inverte a orientação dos arcos da lista de adjacência. !A matriz de adjacência não é transposta nesta função!
+  - Recebe: nada.
+  - Retorna: nada.
+
 - `CicloArvoreGeradora`: verifica, a cada adição de uma aresta, se há ciclos ná árvore.
   - Recebe: um dicionário que representa a árvore geradora mínima.
   - Retorna: um booleano que verifica se possui ou não um ciclo.
@@ -318,6 +339,12 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
   - Funcionamento
 
   Para cada vizinho do vértice, é chamado o método novamente, passando-o como v, além de marcá-lo como "A" (achado). Quando todos os vizinhos já tiverem sido processados, o vértice é marcado como "V" (visitado) e é adicionado na lista de execução. O método, enfim, retorna a lista de execução atualizada.
+
+#### Métodos estáticos
+
+- `conexosParaString`: Transforma uma lista de componentes conexos em uma grande string.
+  - Recebe: lista de lista de vértices.
+  - Retorna: o que o método retorna.
 
 - `nomedometodo`: descrição do que o método faz pela classe.
   - Recebe: o que é passado para o método
