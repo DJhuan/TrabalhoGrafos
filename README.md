@@ -110,7 +110,7 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
     Baseado no algoritmo de Kosaraju para componentes fortemente conexas.
 
-    O método foi planejado para funcionar com grafos direcionados, portanto retornará -1 se essa exigência não for atendida
+    O método foi planejado para funcionar com grafos direcionados, portanto retornará -1 se essa exigência não for atendida.
 
     Uma variável chamada tempos_fechamento irá guardar em um vetor várias tuplas no formato (tempo_de_fechamento, vértice). Esse vetor é gerado pelo método auxiliar '_temporizar()'.
 
@@ -121,6 +121,32 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
     As componentes conexas, agora, são obtidas a partir do resultado do método '_temporizarReversa()', chamada a partir do grafo transposto, utilizando os tempos de fechamento como parâmetro. A variável 'componentes_conexas' armazena um vetor de vetores. Esses vetores contém os vértices que participam de um componente.
 
     Finalmente, o retorno é dado pelo tamanho do vetor armazenado em 'componentes_conexas'.
+
+- `Dijkstra`: encontra o caminho mínimo entre dois vértices utilizando o algoritmo de Dijkstra.
+  - Recebe:
+    - `vInicial`: de onde saímos com a busca.
+    - `vFinall`: onde queremos chegar com a busca.
+  - Retorna: inteiro que representa a distância mínima entre os vértices.
+  - Funcionamento
+    O método foi planejado para funcionar com grafos não direcionados, portanto retornará -1 se essa exigência não for atendida.
+
+    Primeiro o algoritmo declara um array, que armazena a distância do vértice inicial até o vértice da posição atual. Inicialmente todas as distâncias são iniciadas como infinitas, mas logo em seguida o vértice inicial recebe distância 0.
+
+    Um heap é declarado, e armazenamos nele uma tupla com uma distância e um vértice. Incluímos nessa fila o vértice inicial e sua distância (0).
+
+    Enquanto houver vértices a serem explorados no heap, dizemos que o vértice a ser explorado é a remoção do item que possui a menor distância até então.
+
+    Se ele ainda não tiver sido visitado, atualizamos seu estado de exploração no array de visitados.
+
+    Caso o vértice atual seja o vértice final, retornamos a distância armazenada no array de distâncias da posição correspondente ao vértice atual.
+
+    Caso contrário, para cada vizinho do vértice que acabamos de visitar fazemos:
+
+    Se ele não foi visitado, dizemos que a candidata à nova distância do vértice é a distância do vértice atual mais o peso da aresta que o liga ao seu vizinho.
+
+    Se a nova distância for menor que a que já está armazenada para o vizinho, atualizamos esse valor e adicionamos o vértice no heap.
+
+    Ao final de tudo, caso o vértice final não tenha sido encontrado, retornamos -1, indicando que não existe caminho até ele.
 
 #### Métodos auxiliares
 
