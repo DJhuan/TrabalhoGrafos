@@ -148,6 +148,21 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
     Ao final de tudo, caso o vértice final não tenha sido encontrado, retornamos -1, indicando que não existe caminho até ele.
 
+- `FluxoMaximo`: método que calcula o valor do fluxo máximo do grafo, considerando o vértice de saída como 0 e o de chegada n-1.
+  - Recebe: nada
+  - Retorna: inteiro que representa o fluxo máximo do grafo.
+  - Funcionamento
+
+    O método foi planejado para funcionar com grafos direcionados, portanto retornará -1 se essa exigência não for atendida.
+
+    Depois ela define o vértice de origem como 0 e o de destino como o último vertice, inicializa uma lista "pai" pra armazenar o caminho encontrado e também inicializa uma variável "fluxo maximo" pra armazenar o fluxo total.
+
+    Enquanto for possível explorar o grafo a partir da função 'bfs()', significa que há um caminho que sai do vértice inicial para o final. Usando o caminho obtido, o menor peso de aresta, representado por 'fluxo_caminho' é anotado e o fluxo máximo é atualizado.
+
+    Em seguida as capacidades resuduais são atualizadas no grafo. Isso significa que, para cada aresta do caminho, removemos o valor de 'fluxo_caminho' da aresta orientada de modo saida -> chegada e somamos 'fluxo_caminho' na aresta orientada na direção chegada -> saida.
+
+    No final retorna o valor do fluxo máximo encontrado.
+
 #### Métodos auxiliares
 
 - `bfsConexo`: busca em largura para verificar se um grafo é conexo.
