@@ -92,6 +92,26 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
     Se todas as posições de 'visitado' têm valor lógico True, dizemos que ele é conexo retornando 1, caso contrário retornamos 0.
 
+- `Bipartido`: Verifica se um grafo é bipartido.
+  - Recebe: nada.
+  - Retorna: 1 se é bipartido e 0 se não é.
+  - Funcionamento
+
+    O método inicializa as cores de todos os vértices como -1, para indicar que não foram coloridos.
+
+    Para todos os vétices não coloridos, ele é colorido com a cor 1 e é adicionado à fila. Enquanto a fila não estiver vazia, o método pega seu primeiro elemento e verifica, para cada vizinho, se ele está colorido. Se não estiver, ele é colorido com a cor oposta à do vértice processado e é adicionado à fila. Se ele já estiver colorido, o método verifica se a cor é igual à do vértice processado. Se for, ele não é bipartido e o método retorna 0. Se as cores não forem iguais nenhuma vez, o método retorna 1.
+
+- `Euleriano`: Verifica se um grafo é euleriano.
+  - Recebe: nada.
+  - Retorna: 1 se é euleriano e 0 se não é.
+  - Funcionamento
+
+    Se o grafo for direcionado, verificamos se ele é fortemente conexo. Se não for, ele não é euleriano. Se ele for fortemente conexo, verificamos, para cada vértice, se o grau de entrada é igual ao de saída. Se não for igual ao menos uma vez, o grafo não é euleriano e o método retorna 0. Se isso não acontecer, o método retorna 1.
+
+    Se não for direcionado, verificamos se ele é conexo. Se não for, ele não é euleriano. Se for, verificamos se os graus de todos os vértices são pares. Se os graus de todos os vértices são pares ele é euleriano. Se não, ele não é euleriano.
+
+
+
 - `CompConexos`: Calcula o número de componentes conexos em um grafo não direcionado.
   - Recebe: nada.
   - Retorna: número de componentes conexos do grafo.
