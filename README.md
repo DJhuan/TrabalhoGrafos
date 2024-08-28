@@ -251,6 +251,10 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
     Outra diferença é que esse método não se importa mais em marcar o tempo de maneira correta, ou então de atualizar o vetor 'tempos' durante as iterações, isso porque o que será retornado pela função '_dfs()' já será um componente fortemente conexo, então esse componente é adicionado diretamente na variável 'tempos', que é retornada ao fim da execução do método.
 
+- `_inverterArcos`: inverte a orientação dos arcos da lista de adjacência. !A matriz de adjacência não é transposta nesta função!
+  - Recebe: nada.
+  - Retorna: nada.
+
 #### Métodos estáticos
 
 - `conexosParaString`: Transforma uma lista de componentes conexos em uma grande string.
