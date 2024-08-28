@@ -72,6 +72,26 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
     - `vertice`: nome do vértice removido.
   - Retorna: nada.
 
+- `Conexo`: informa se um grafo é conexo ou não.
+  - Recebe: nada
+  - Retorna: inteiro.
+  - Funcionamento
+    Temos duas opções a serem seguidas nesse caso, uma em que o grafo é direcionado e a outra em que ele não é.
+
+    1 - Caso seja direcionado, declaramos um vetor 'visitado' que cada posição informa o estado de exploração de um vértice ("N" - não visitado, "A" - achado, "V" - visitado) e, incialmente, todos estão em estado "N". Em seguida informamos que o vértice 0 foi achado.
+
+    Declaramos um dicionário chamado 'grafo', em que adicionamos todos os vértices como chaves e iniciamos os valores das chaves como um vetor. Para cada vértice no nosso grafo original, buscamos quais são as arestas que saem dele e populamos o dicionário convertendo os arcos para arestas bidirecionais.
+
+    Chamamos o método 'bfsConexo()' utilizando como parâmetros o vetor de vértices visitados, o grafo convertido em não direcionado e o vértice inicial (0).
+
+    Daí, iteramos sobre 'visitado', caso exista um vértice que não tenha sido visitado retornamos 0, indicando que não é conexo, casocontrário retornamos 1.
+
+    2 - Caso não seja direcionado, então declaramos um vetor que marca os vértices visitados, chamado 'visitado', e iniciamos todas as posições como falsas.
+
+    Chamamos dfs(), passando como parâmetros 0 (vértice inicial) e o vetor de 'visitado'. Ao fim do procedimento, toda posição que estiver com o valor lógico True representa um vértice visitado.
+
+    Se todaps as posições de 'visitado' têm valor lógico True, dizemos que ele é conexo retornando 1, caso contrário retornamos 0.
+
 - `CompConexos`: Calcula o número de componentes conexos em um grafo não direcionado.
   - Recebe: nada.
   - Retorna: número de componentes conexos do grafo.
