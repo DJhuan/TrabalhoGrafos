@@ -638,7 +638,6 @@ quanto a lista de adjacência."""
         for tupla in self.lista[vertice]:
             u = tupla[0]
             if visitado[u] == "N":
-                #print (vertice, pai)
                 pai[u] = vertice
                 tempo += 1
                 self.TarjanA(u, visitado, low, tempoD, pai, arestasPonte, tempo)
