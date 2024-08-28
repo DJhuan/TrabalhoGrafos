@@ -47,8 +47,8 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 - `__str__`: método que transforma o grafo em uma representação escrita que pode ser escrita no terminal ou então armazenada num arquivo. A representação escrita conta com a matriz de adjacência, matriz de id de arestas e lista de adjacência.
   - Recebe: nada.
   - Retorna: uma string.
-- `AdicionarArestas`: Adiciona uma nova aresta no grafo.
 
+- `AdicionarArestas`: Adiciona uma nova aresta no grafo.
   - Recebe:
     - `id`: identificador que representa a aresta.
     - `v1`: vétice de onde parte a aresta.
@@ -57,20 +57,17 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
   - Retorna: nada.
 
 - `RemoverArestas`: remove uma aresta do grafo.
-
   - Recebe:
     - `v1`: vétice de onde parte a aresta.
     - `v2`: vétice de chegada da aresta.
   - Retorna: nada.
 
 - `AdicionarVertice`: Adiciona um novo vértice no grafo.
-
   - Recebe:
     - `vertice`: nome do vértice adicionado que será a nova chave no dicionário e linha da matriz de adjacência.
   - Retorna: nada.
 
 - `RemoverVertice`: Remove um vértice do grafo.
-
   - Recebe:
     - `vertice`: nome do vértice removido.
   - Retorna: nada.
@@ -107,15 +104,35 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
 #### Métodos auxiliares
 
+- `bfsConexo`: busca em largura para verificar se um grafo é conexo.
+  - Recebe:
+    `visitado`: vetor de vértices visitados.
+    `lista`: dicionario que representa um grafo como lista de adjacencia.
+    `vertice`: vertice inicial.
+  - Retorna: nada.
+  - Funcionamento:
+
+      Inicia uma fila que marca a ordem de exploração dos vértices com o parâmetro 'vertice' incluído.
+
+      Indica também que, no vetor de vértices visitados, a posição que representa o estado do vertice inicial ele foi achado.
+
+      Enquanto houver itens a ser explorados na fila, removemos o que há no início dela e o chamamos de 'i'.
+
+      Iteramos dentro da lista de adjacência de 'i' buscando os vértices que ainda não foram visitados, marcando-os como achados e adicionando na fila de exploração.
+
+      Depois de iterar marcamos o vértice atual 'i' como visitado.
+
+      Ao fim das iterações, o vetor 'visitado' estará com os dados dos vértices encontrados ou não.
+
 - `_dfs`: função de busca em profundidade planejada para marcar o tempo de exploração de cada vértice.
   - Recebe:
-    - ```v_ini```: vérice que inicia a busca.
-    - ```tempo```: último tempo marcado.
-    - ```tempos```: vetor de tuplas (tempo_de_fechamento, vértice).
+    - `v_ini`: vérice que inicia a busca.
+    - `tempo`: último tempo marcado.
+    - `tempos`: vetor de tuplas (tempo_de_fechamento, vértice).
   - Retorna:
-    - ```tempos```: mesmo que acima.
-    - ```tempo```: último tempo marcado.
-    - ```visitados```: set de vértices já visitados.
+    - `tempos`: mesmo que acima.
+    - `tempo`: último tempo marcado.
+    - `visitados`: set de vértices já visitados.
   - Funcionamento
 
     Uma pilha 'a_explorar' manterá os vértices a sereme explorados na DFS. Iniciamos ela já com o vértice inical.
