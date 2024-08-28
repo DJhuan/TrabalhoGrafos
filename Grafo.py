@@ -1,7 +1,7 @@
 # Grupo:
-# Jhuan Carlos Sabaini Dassie
-# Lívia Della Garza Silva
-# Marina Hermógenes Siqueira
+# 10A Jhuan Carlos Sabaini Dassie 202310873
+# 14A Lívia Della Garza Silva     202310052
+# 10A Marina Hermógenes Siqueira  202310531
 
 
 import copy, heapq
