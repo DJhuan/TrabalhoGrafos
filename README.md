@@ -38,7 +38,7 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
 - `vertices`: lista com os vértices inseridos.
 - `direcionado`: booleano que indica se o grafo é direcionado / orientado.
-- `lista`: dicionário usado para representar a lista de adjacência dos vértices. Aqui, as chaves do dicionário corresponde ao vértice de onde parte a aresta, enquanto os valores são as arestas, representadas por tuplas que armazenam o vértice de chegada e o peso da aresta.
+- `lista`: dicionário usado para representar a lista de adjacência dos vértices. Aqui, as chaves do dicionário correspondem ao vértice de onde parte a aresta, enquanto os valores são as arestas, representadas por tuplas que armazenam o vértice de chegada e o peso da aresta.
 - `matriz`: matriz de adjacência.
 - `arestas`: matriz utilizada para armazenar o identificador das arestas.
 
@@ -73,7 +73,7 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
   - Retorna: nada.
 
 - `Conexo`: informa se um grafo é conexo ou não.
-  - Recebe: nada
+  - Recebe: nada.
   - Retorna: inteiro.
   - Funcionamento
     Temos duas opções a serem seguidas nesse caso, uma em que o grafo é direcionado e a outra em que ele não é.
@@ -90,7 +90,7 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
     Chamamos dfs(), passando como parâmetros 0 (vértice inicial) e o vetor de 'visitado'. Ao fim do procedimento, toda posição que estiver com o valor lógico True representa um vértice visitado.
 
-    Se todaps as posições de 'visitado' têm valor lógico True, dizemos que ele é conexo retornando 1, caso contrário retornamos 0.
+    Se todas as posições de 'visitado' têm valor lógico True, dizemos que ele é conexo retornando 1, caso contrário retornamos 0.
 
 - `CompConexos`: Calcula o número de componentes conexos em um grafo não direcionado.
   - Recebe: nada.
@@ -104,7 +104,7 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
     Ao fim, o número de componentes é retornado.
 
 - `CompFortementeCnx`: encontra a quantidade de componentes formetmente conexas no grafo.
-  - Recebe: nada
+  - Recebe: nada.
   - Retorna: número de componentes fortemente conexas.
   - Funcionamento
 
@@ -121,6 +121,38 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
     As componentes conexas, agora, são obtidas a partir do resultado do método '_temporizarReversa()', chamada a partir do grafo transposto, utilizando os tempos de fechamento como parâmetro. A variável 'componentes_conexas' armazena um vetor de vetores. Esses vetores contém os vértices que participam de um componente.
 
     Finalmente, o retorno é dado pelo tamanho do vetor armazenado em 'componentes_conexas'.
+
+- `ArvoreBFS`: encontra a árvore de busca em largura.
+  - Recebe:
+    - `v`: vértice inicial, 0 por padrão.
+  - Retorna: identificadores das arestas da árvore de busca em largura.
+  - Funcionamento
+    Inicializamos a lista das arestas da árvore como uma lista vazia, é a lista dos vértices visitados tem todos os seus elementos inicializados como "N" (não visitado). Adicionamos o vértice inicial na fila e o colocamos como achado ("A").
+
+    Enquanto a fila não estiver vazia, exploramos o primeiro elemento e verificamos se cada vizinho já foi visitado ou achado. Se não, colocamos o vizinho como achado ("A"), adicionamos ele na fila e adicionamos a aresta que sai do vértice para esse vizinho na lista de arestas. Depois de explorar o vértice, colocamos ele como visitado ("V").
+
+    Quando a fila finalmente estiver vazia, retornamos a lista de arestas.
+
+- `ArvoreGeradoraMinima`: encontra o valor total da árvore geradora mínima.
+  - Recebe: nada.
+  - Retorna: inteiro que representa a soma de todas as arestas da árvore geradora mínima.
+  - Funcionamento
+    O método começa criando uma lista de arestas, que inicialmente é vazia. Percorremos a matriz de adjacência do grafo, colocando todas as arestas encontradas na lista de arestas, com a configuração (valor, v1, v2). Como o método funciona apenas para grafos não direcionados, colocamos a condição de que o vértice de saída tem que ser menor que o vértice de entrada, para retirar loops e não representar a mesma aresta duas vezes, como é feito em grafos não direcionados. Depois, a lista é ordenada pelo valor das arestas.
+
+    Criamos um dicionário, que representa a árvore geradora mínima, e inicializamos os valores correspondentes a todas as chaves como uma lista vazia. Inicializamos também o valor da árvore como 0.
+
+    Enquanto a quantidade de arestas da árvore for menor que a quantidade de vértices-1 e a lista de arestas não estiver vazia, pegamos o elemento de menor valor da lista e adicionamos ele na árvore. Verificamos se a adição desse elemento cria ciclos, com a ajuda da função CicloArvoreGeradora. Se criar ciclos, a aresta é retirada. Se não, adicionamos o valor da aresta ao valor da árvore.
+
+    Quando uma das condições de parada for atingida, retornamos a soma de todas as arestas da árvore.
+
+- `OrdemTopologica`: encontra uma possibilidade de ordem de execução, utilizando a busca em profundidade.
+  - Recebe: 
+    - `listaExecucao`: inicialmente vazia.
+    - `visitado`: verifica se cada vértice foi visitado. Inicializado como "N" para todos os vértices.
+  - Retorna: lista que contém a ordem de execução.
+  - Funcionamento
+    O método chama a função dfsOrdemTop para cada vértice não visitado, marcando o vértice como "A" (achado).
+    Como a função auxiliar adiciona os vértices no final da lista, o método retorna a lista invertida. 
 
 - `Dijkstra`: encontra o caminho mínimo entre dois vértices utilizando o algoritmo de Dijkstra.
   - Recebe:
@@ -162,6 +194,21 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
     Em seguida as capacidades resuduais são atualizadas no grafo. Isso significa que, para cada aresta do caminho, removemos o valor de 'fluxo_caminho' da aresta orientada de modo saida -> chegada e somamos 'fluxo_caminho' na aresta orientada na direção chegada -> saida.
 
     No final retorna o valor do fluxo máximo encontrado.
+
+- `FechoTransitivo`: encontra os vértices alcançados por determinado vértice.
+  - Recebe:
+    - `pilha`: pilha usada na busca em profundidade. Inicialmente vazia.
+    - `visitado`: lista que verifica se o vértice foi visitado, achado ou não foi visitado.
+    - `listaVertices`: lista que contém o fecho transitivo do vértice. Inicialmente vazia.
+  - Retorna: uma lista com o fecho transitivo do vértice 0.
+  - Funcionamento
+    O método marca o vértice inicial como "A" (achado) e o adiciona na pilha.
+
+    Enquanto a pilha não estiver vazia, pegamos seu último elemento e verificamos se cada vizinho foi explorado. Se não, marca-o como "A" (achado), adiciona-o na pilha e no fecho transitivo, e chama o método novamente.
+
+    Depois que todos os vizinhos forem processados, o vértice é marcado como "V" (visitado).
+
+    Quando a pilha estiver vazia, o método retorna o fecho transitivo atualizado.
 
 #### Métodos auxiliares
 
@@ -233,6 +280,44 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
     A ordem é determinada pelo argumento 'tempo_decresc', que será iterado reversamente. Aqui, espera-se uma lista de tuplas (tempo_de_fechamento, vértice), ordenada crescentemente em relação ao primeiro parâmetro.
 
     Outra diferença é que esse método não se importa mais em marcar o tempo de maneira correta, ou então de atualizar o vetor 'tempos' durante as iterações, isso porque o que será retornado pela função '_dfs()' já será um componente fortemente conexo, então esse componente é adicionado diretamente na variável 'tempos', que é retornada ao fim da execução do método.
+
+- `CicloArvoreGeradora`: verifica, a cada adição de uma aresta, se há ciclos ná árvore.
+  - Recebe: um dicionário que representa a árvore geradora mínima.
+  - Retorna: um booleano que verifica se possui ou não um ciclo.
+  -Funcionamento
+
+    O valor booleano que verifica a presença de ciclos é inicializado como falso. É também criada uma lista para verificar se o vértice foi visitado, achado ou não foi visitado, e uma pilha, inicialmente vazia. 
+
+    Para cada vértice não visitado da árvore, o vértice é marcado como "A" (achado) e é chamada a função verifica_ciclo.
+
+    Quando todos os vértices forem processados, o programa retorna o booleano, dizendo se possui ou não um ciclo.
+
+- `verifica_ciclo`: tem a função de encontrar um ciclo em um grafo.
+  - Recebe: 
+    - `pai`: o pai do vértice que será processado.
+    - `ciclo`: booleano que verifica a presença de ciclos.
+    - `visitado`: lista que verifica se o vértice foi visitado, achado ou não foi visitado.
+    - `pilha`: pilha que será usada na busca em profundidade.
+    - `lista`: grafo que será processado.
+    - `direcionado`: diz se o grafo é direcionado ou não.
+  - Retorna: um booleano que verifica se possui ou não um ciclo.
+  - Funcionamento
+
+    O método pega o último elemento da pilha e verifica se cada vizinho já foi explorado. Se não, marca o vizinho como "A" (achado), adiciona ele na pilha e chama o método novamente, passado o vértice atual como pai. 
+
+    Se o vizinho já foi achado, mas não foi explorado, e não é o pai do vértice, significa que há um ciclo. Se o grafo é direcionado, mesmo se o vizinho for o pai do vértice, há um ciclo. Nesses dois casos, a função retorna verdadeiro.
+
+    O último elemento da pilha é retirado e a função retorna o valor booleano que verifica a presença de ciclos.  
+
+- `dfsOrdemTop`: atualiza a lista de execução, a pertir da busca em profundidade.
+  - Recebe:
+    - `listaExecucao`: estado atual da lista de execução.
+    - `visitado`: lista que verifica se o vértice foi visitado, achado ou não foi visitado.
+    - `v`: vértice que será processado.
+  - Retorna: a lista de execução atualizada.
+  - Funcionamento
+
+  Para cada vizinho do vértice, é chamado o método novamente, passando-o como v, além de marcá-lo como "A" (achado). Quando todos os vizinhos já tiverem sido processados, o vértice é marcado como "V" (visitado) e é adicionado na lista de execução. O método, enfim, retorna a lista de execução atualizada.
 
 - `nomedometodo`: descrição do que o método faz pela classe.
   - Recebe: o que é passado para o método
