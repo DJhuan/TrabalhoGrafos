@@ -165,6 +165,24 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
 #### Métodos auxiliares
 
+- `bfs`: busca por um vértice utilizando a busca em largura, mantendo também o caminho para chegar até ele.
+  - Recebe:
+    - `origem`: vértice de origem.
+    - `destino`: vértice de destino.
+    - `pai`: vetor com os pais dos vértices (ordem de visitação).
+  - Retorna: booleano que indica se foi possível encontrar o vértice de destino.
+  - Funcionamento:
+
+    Declara uma fila que mantém a ordem de exploração dos vértices e um vetor para verificar quem foi visitado. O vértice inicial é imediatamente marcado como visitado.
+
+    Enquanto houver itens na fila:
+
+    Buscamos pelo primeiro item, e iteramos sobre a linha da matriz de adjacência que representa as arestas desse vértice.
+    Caso a aresta exista, seu valor seja maior que zero e o filho ainda não tenha sido visitado: adicionamos o filho na fila, marcamos que ele foi visitado e atualizamos o vetor de pais, dizendo que o vértice aos quais os filhos estamos explorando é pai do filho marcado como visitado.
+
+    Ao fim, retornamos se o filho foi visitado.
+
+
 - `bfsConexo`: busca em largura para verificar se um grafo é conexo.
   - Recebe:
     `visitado`: vetor de vértices visitados.
