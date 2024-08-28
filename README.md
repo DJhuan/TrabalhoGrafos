@@ -122,9 +122,18 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
     Finalmente, o retorno é dado pelo tamanho do vetor armazenado em 'componentes_conexas'.
 
+- `Cortes`: Aplica o algoritmo de Tarjan para vértices de articulação e arestas ponte.
+  - Recebe: um inteiro que identifica o objetivo da aplicação do algoritmo.
+  - Retorna: A lista de vértices de articulação ou de arestas ponte.
+  - Funcionamento
+    O método inicializa todos os elementos da lista de visitados como "N" (não visitados), os vetores de tempo de descoberta, low e pai como None em todos os elementos, e o tempo como 1.
+
+    Se o id for 1, é criada uma lista de arestas ponte e o algoritmo de Tarjan para arestas ponte é chamado para cada vértice não visitado. Depois, é retornada a lista de arestas ponte.
+
+    Se o id for 2, é criada uma lista de vértices de articulação e o algoritmo de Tarjan para vértices de articulação é chamado para cada vértice não visitado. Depois, é retornada a lista de vértices de articulação.
+
 - `ArvoreBFS`: encontra a árvore de busca em largura.
-  - Recebe:
-    - `v`: vértice inicial, 0 por padrão.
+  - Recebe: vértice inicial, 0 por padrão.
   - Retorna: identificadores das arestas da árvore de busca em largura.
   - Funcionamento
     Inicializamos a lista das arestas da árvore como uma lista vazia, é a lista dos vértices visitados tem todos os seus elementos inicializados como "N" (não visitado). Adicionamos o vértice inicial na fila e o colocamos como achado ("A").
@@ -301,6 +310,46 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 - `_inverterArcos`: inverte a orientação dos arcos da lista de adjacência. !A matriz de adjacência não é transposta nesta função!
   - Recebe: nada.
   - Retorna: nada.
+
+- `TarjanA`: algoritmo de Tarjan para arestas ponte.
+  - Recebe:
+    - `vertice`: vértice que será processado.
+    - `visitado`: lista que verifica se o vértice foi visitado, achado ou não foi visitado.
+    - `low`: lista com o low de cada vértice.
+    - `tempoD`: lista com os tempos de descoberta de cada vértice.
+    - `pai`: lista com o pai de cada vértice.
+    - `arestasPonte`: lista de arestas ponte.
+    - `tempo`: tempo atual.
+  - Retorna: nada.
+  - Funcionamento
+
+    O vértice é marcado como "A" (achado). O tempo de descoberta e o low do vértice recebem o valor do tempo.
+
+    Para cada vizinho do vértice, se ele não foi visitado, o pai do vizinho recebe o valor do vértice e é chamado o método novamente, passando o vizinho como o parâmetro "vertice". Depois, é verificado se o low do vértice é mmaior que o low do vizinho. Se for, o low do vértice recebe o low do vizinho. Se o low do vizinho é maior que o tempo de descoberta do vértice, a aresta entre eles é uma ponte.
+
+    Se o vizinho não foi visitado e não é o pai do vértice, significa que há uma aresta que retorna a um antecessor do vértice. Então, se o tempo de descoberta do vizinho for menor que o low do vértice, o low do vértice passa a ser o tempo de descoberta do vizinho.
+
+    Depois de processar todos os vizinhos, o vértice é marcado como visitado.
+
+- `TarjanV`: algoritmo de Tarjan para vértices de articulação.
+  - Recebe:
+    - `vertice`: vértice que será processado.
+    - `visitado`: lista que verifica se o vértice foi visitado, achado ou não foi visitado.
+    - `low`: lista com o low de cada vértice.
+    - `tempoD`: lista com os tempos de descoberta de cada vértice.
+    - `pai`: lista com o pai de cada vértice.
+    - `verticesArtic`: lista de vértices de articulação.
+    - `tempo`: tempo atual.
+  - Retorna: nada.
+  - Funcionamento
+
+    O vértice é marcado como "A" (achado). O tempo de descoberta e o low do vértice recebem o valor do tempo.
+
+    Para cada vizinho do vértice, se ele não foi visitado, o pai do vizinho recebe o valor do vértice e é chamado o método novamente, passando o vizinho como o parâmetro "vertice". Depois, é verificado se o low do vértice é mmaior que o low do vizinho. Se for, o low do vértice recebe o low do vizinho. Se o low do vizinho é maior ou igual ao o tempo de descoberta do vértice, o vértice é uma articulação.
+
+    Se o vizinho não foi visitado e não é o pai do vértice, significa que há uma aresta que retorna a um antecessor do vértice. Então, se o tempo de descoberta do vizinho for menor que o low do vértice, o low do vértice passa a ser o tempo de descoberta do vizinho.
+
+    Depois de processar todos os vizinhos, o vértice é marcado como visitado.
 
 - `CicloArvoreGeradora`: verifica, a cada adição de uma aresta, se há ciclos ná árvore.
   - Recebe: um dicionário que representa a árvore geradora mínima.
