@@ -182,7 +182,6 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
 
     Ao fim, retornamos se o filho foi visitado.
 
-
 - `bfsConexo`: busca em largura para verificar se um grafo é conexo.
   - Recebe:
     `visitado`: vetor de vértices visitados.
@@ -251,6 +250,12 @@ A implementação foi feita completamente sobre uma classe chamada Grafo. Como i
     A ordem é determinada pelo argumento 'tempo_decresc', que será iterado reversamente. Aqui, espera-se uma lista de tuplas (tempo_de_fechamento, vértice), ordenada crescentemente em relação ao primeiro parâmetro.
 
     Outra diferença é que esse método não se importa mais em marcar o tempo de maneira correta, ou então de atualizar o vetor 'tempos' durante as iterações, isso porque o que será retornado pela função '_dfs()' já será um componente fortemente conexo, então esse componente é adicionado diretamente na variável 'tempos', que é retornada ao fim da execução do método.
+
+#### Métodos estáticos
+
+- `conexosParaString`: Transforma uma lista de componentes conexos em uma grande string.
+  - Recebe: lista de lista de vértices.
+  - Retorna: o que o método retorna.
 
 - `nomedometodo`: descrição do que o método faz pela classe.
   - Recebe: o que é passado para o método
